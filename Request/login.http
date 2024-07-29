@@ -1,0 +1,9 @@
+POST http://localhost:3000/api/wanaka/accounts/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "marcos.tirao@icloud.com",
+    "password": "3172AppL"
+}
+
+

@@ -1,0 +1,5 @@
+GET http://localhost:3000/api/wanaka/accounts/validate HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MzI3OTM0MjgsInVzZXIiOiI5MjUyNTg0MCJ9.Uq-tWmLKyvFQOyYD3QZPmom7BCi_5ldKd1qDJWCHcGE
+
+

@@ -1,0 +1,4 @@
+POST http://localhost:3000/api/wanaka/accounts/refresh HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MzMzMzY0NDMsInVzZXIiOiI5MjUyNTg0MCJ9.SC6KBWAuSXyUxeZrrOPjtDZhrfPkyz26YIPZFkAsi-0
+X-Refresh-Token: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MzQyMDA0NDMsInVzZXIiOiI5MjUyNTg0MCJ9.obi_xSgA7fv4BJBlDFfB3rDs22a8Bab2nTLheLucbxo
+content-type: application/json

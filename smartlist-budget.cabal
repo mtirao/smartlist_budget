@@ -1,0 +1,69 @@
+name:                smartlist-budget
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/mtirao/smartlist_budget
+license:             BSD3
+license-file:        LICENSE
+author:              Author name here
+maintainer:          example@example.com
+copyright:           2022 Author name here
+category:            Web
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+
+executable smartlist-budget
+    hs-source-dirs: src
+                    ,src/db
+                    ,src/controller
+                    ,src/dto
+                    ,src/helpers
+    main-is:        Main.hs
+    ghc-options:    -threaded -O2 -rtsopts -with-rtsopts=-N -Wno-deprecations -Wno-unused-imports -Wno-type-equality-out-of-scope -Wno-type-equality-requires-operators
+    default-extensions:     
+            DuplicateRecordFields
+            DeriveAnyClass 
+            DerivingStrategies
+            OverloadedStrings
+            OverloadedRecordDot
+            TemplateHaskell
+            QuasiQuotes
+    default-language: Haskell2010
+    build-depends:  base                            >= 4.14.3.0
+                    , scotty                       
+                    , bytestring                    
+                    , text                          
+                    , postgresql-simple             
+                    , aeson                         
+                    , transformers                  
+                    , wai                           
+                    , wai-middleware-static         
+                    , wai-extra                     
+                    , resource-pool                 
+                    , configurator                 
+                    , MissingH                      
+                    , lens                          
+                    , lens-aeson                   
+                    , wreq                          
+                    , http-types
+                    , time
+                    , warp-tls
+                    , warp
+                    , bytestring-conversion
+                    , jose-jwt
+                    , hasql
+                    , rel8
+                    , uuid
+    other-modules: 
+        TenderDTO
+        , ErrorMessage
+        , Payload
+        , Hardcoded
+        , Views
+        , Tender
+        , TenderController
+        , Connection
+        , Evaluator
+        
