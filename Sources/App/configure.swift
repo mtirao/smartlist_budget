@@ -18,7 +18,8 @@ public func configure(_ app: Application) async throws {
     ), as: .psql)
 
     app.migrations.add(CreateBudget())
-    app.migrations.add(UpdateBudgetToSchema())
+    app.migrations.add(CreateInvoice())
+    app.migrations.add(CreateTender())
     // register routes
     try routes(app)
 }

@@ -9,7 +9,7 @@ import Fluent
 import Foundation
 
 final class Budget: Model, @unchecked Sendable {
-    static let schema = "budget"
+    static let schema = "budgets"
     
     @ID(key: .id)
     var id: UUID?
