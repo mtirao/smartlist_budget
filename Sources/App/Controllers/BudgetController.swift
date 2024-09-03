@@ -9,6 +9,7 @@ struct BudgetController: RouteCollection {
         budgets.post(use: self.create)
         budgets.group(":budgetID") { todo in
             budgets.delete(use: self.delete)
+            budgets.get(use: self.fetch)
         }
     }
 
@@ -33,5 +34,12 @@ struct BudgetController: RouteCollection {
 
         try await budget.delete(on: req.db)
         return .noContent
+    }
+    
+    @Sendable
+    func fetch(req: Request) async throws -> [BudgetDTO] {
+        guard let budget = req.parameters.get("budgetID") else { return [] }
+        
+        return try await Budget.query(on: req.db).filter(\.$userId == "").all().map { $0.toDTO() }
     }
 }
