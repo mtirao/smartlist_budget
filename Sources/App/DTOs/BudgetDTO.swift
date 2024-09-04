@@ -14,7 +14,6 @@ struct BudgetDTO: Content {
     let name: String?
     let amount: Double?
     let date: Date?
-    
     let user_id: String?
     
     func toModel() -> Budget {
@@ -40,4 +39,33 @@ struct BudgetDTO: Content {
         }
         return model
     }
+}
+
+/// Budget result
+
+struct BudgetsDTO: Content {
+    let budgets: [BudgetDescriptionDTO]
+    
+    init(budgets: [Date : [BillDTO]]) {
+        guard budgets.isEmpty else {
+            self.budgets = []
+            return
+        }
+        var aux: [BudgetDescriptionDTO] = []
+        
+        for date in budgets.keys {
+            aux.append( BudgetDescriptionDTO(date: date.description, bills: budgets[date] ?? []) )
+        }
+        self.budgets = aux
+    }
+}
+
+struct BudgetDescriptionDTO: Content {
+    let date: String
+    let bills: [BillDTO]
+}
+
+struct BillDTO: Content {
+    let name: String
+    let amount: Double
 }

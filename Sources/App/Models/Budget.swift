@@ -25,7 +25,7 @@ final class Budget: Model, @unchecked Sendable {
     
     @Field(key: "user_id")
     var userId: String
-
+    
     init() { }
 
     init(id: UUID? = nil, name: String, date: Date, amount: Double, userId: String) {
