@@ -18,7 +18,7 @@ final class Tender: Model, @unchecked Sendable {
     @Field(key: "type")
     var type: String
     
-    @Field(key: "name")
+    @Field(key: "number")
     var number: String
     
     @Field(key: "alias")

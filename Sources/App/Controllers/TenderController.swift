@@ -12,16 +12,26 @@ struct TenderController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let tender = routes.grouped("api", apiVersion, "tender")
 
-        tender.get(use: self.index)
         tender.post(use: self.create)
         tender.group(":tenderID") { todo in
-            tender.delete(use: self.delete)
+            todo.delete(use: self.delete)
+        }
+        
+        tender.group(":userID") { todo in
+            todo.get(use: self.index)
         }
     }
 
     @Sendable
     func index(req: Request) async throws -> [TenderDTO] {
-        return try await Tender.query(on: req.db).all().map { $0.toDTO() }
+        guard let userId = req.parameters.get("userID") else { return [] }
+        
+        let result = try await Tender.query(on: req.db).filter(\.$userId == userId).all().map { $0.toDTO() }
+        if result.isEmpty {
+            return []
+        }
+        
+        return result
     }
 
     @Sendable

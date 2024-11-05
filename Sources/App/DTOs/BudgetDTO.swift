@@ -47,7 +47,7 @@ struct BudgetsDTO: Content {
     let budgets: [BudgetDescriptionDTO]
     
     init(budgets: [Date : [BillDTO]]) {
-        guard budgets.isEmpty else {
+        guard budgets.isEmpty == false else {
             self.budgets = []
             return
         }

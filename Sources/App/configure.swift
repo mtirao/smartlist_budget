@@ -2,10 +2,14 @@ import NIOSSL
 import Fluent
 import FluentPostgresDriver
 import Vapor
+import JWT
 
 // configures your application
 public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
+
+    // Add HMAC with SHA-256 signer.
+    await app.jwt.keys.add(hmac: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", digestAlgorithm: .sha256)
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
     app.databases.use(DatabaseConfigurationFactory.postgres(configuration: .init(
@@ -17,6 +21,8 @@ public func configure(_ app: Application) async throws {
         tls: .prefer(try .init(configuration: .clientDefault)))
     ), as: .psql)
 
+    app.middleware.use(AuthenticateMiddleware())
+    
     app.migrations.add(CreateBudget())
     app.migrations.add(CreateInvoice())
     app.migrations.add(CreateTender())

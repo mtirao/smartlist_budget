@@ -13,4 +13,6 @@ func routes(_ app: Application) throws {
     }
     
     try app.register(collection: BudgetController())
+    try app.register(collection: TenderController())
+    try app.register(collection: InvoiceController())
 }
