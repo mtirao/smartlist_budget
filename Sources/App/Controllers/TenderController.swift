@@ -11,19 +11,15 @@ import Vapor
 struct TenderController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let tender = routes.grouped("api", apiVersion, "tender")
-
         tender.post(use: self.create)
         tender.group(":tenderID") { todo in
             todo.delete(use: self.delete)
         }
-        
-        tender.group(":userID") { todo in
-            todo.get(use: self.index)
-        }
+        tender.get(use: self.fetch)
     }
 
     @Sendable
-    func index(req: Request) async throws -> [TenderDTO] {
+    func fetch(req: Request) async throws -> [TenderDTO] {
         guard let userId = req.parameters.get("userID") else { return [] }
         
         let result = try await Tender.query(on: req.db).filter(\.$userId == userId).all().map { $0.toDTO() }
