@@ -18,21 +18,29 @@ struct BasketDescriptionDTO: Content {
     var lon: Double?
     var lat: Double?
     
-    init(id: UUID? = nil, itemId: UUID? = nil, basketId: UUID? = nil, price: Double? = nil, lon: Double? = nil, lat: Double? = nil) {
+    var name: String?
+    var sku: String?
+    var category: String?
+    
+    init(id: UUID? = nil, itemId: UUID? = nil, basketId: UUID? = nil, price: Double? = nil, lon: Double? = nil, lat: Double? = nil, name: String? = nil, sku: String? = nil, category: String? = nil) {
         self.id = id
         self.itemId = itemId
         self.basketId = basketId
         self.price = price
         self.lon = lon
         self.lat = lat
+        self.name = name
+        self.sku = sku
+        self.category = category
     }
     
     func toModel(userId: String) -> BasketDesscription {
         let model = BasketDesscription()
         
         model.id = self.id
+        
         if let itemId = self.itemId {
-            model.itemId = itemId
+            model.$item.id = itemId
         }
         
         if let basketId = self.basketId {

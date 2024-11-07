@@ -11,9 +11,9 @@ struct CreateBasket: AsyncMigration {
     func prepare(on database: Database) async throws {
         try await database.schema("baskets")
             .id()
-            .field("date", .date, .required)
             .field("status", .string, .required)
             .field("user_id", .string, .required)
+            .field("tender_id", .uuid)
             .create()
     }
 

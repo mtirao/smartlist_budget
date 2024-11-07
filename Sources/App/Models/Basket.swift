@@ -8,7 +8,7 @@
 import Fluent
 import Foundation
 
-enum Status: Codable, CaseIterable {
+enum Status: String, Codable, CaseIterable {
     case new
     case inprogress
     case delivered
@@ -21,23 +21,20 @@ final class Basket: Model, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
     
-    @Field(key: "date")
-    var date: Date
     
-    @Field(key: "status")
+    @Enum(key: "status")
     var status: Status
     
     @Field(key: "tender_id")
-    var tenderId: UUID
+    var tenderId: UUID?
     
     @Field(key: "user_id")
     var userId: String
 
     init() { }
 
-    init(id: UUID? = nil, date: Date, status: Status, userId: String, tenderId: UUID) {
+    init(id: UUID? = nil, status: Status, userId: String, tenderId: UUID) {
         self.id = id
-        self.date = date
         self.status = status
         self.userId = userId
         self.tenderId = tenderId
@@ -46,7 +43,7 @@ final class Basket: Model, @unchecked Sendable {
     func toDTO() -> BasketDTO {
         .init(
             id: self.id,
-            date: self.$date.value,
-            status: self.$status.value)
+            status: self.$status.value,
+            tenderId: self.tenderId)
     }
 }

@@ -32,13 +32,47 @@ struct BasketController: RouteCollection {
     }
 
     @Sendable
-    func create(req: Request) async throws -> BasketDTO {
-        guard let userId = req.parameters.get("userID") else { return BasketDTO() }
+    func create(req: Request) async throws -> HTTPStatus {
+        guard let userId = req.parameters.get("userID") else { throw Abort(.nonAuthoritativeInformation) }
         
-        let todo = try req.content.decode(BasketDTO.self).toModel(userId: userId)
-
-        try await todo.save(on: req.db)
-        return todo.toDTO()
+        let item = try req.content.decode(ItemDTO.self).toModel(userId: userId)
+        
+        let result = try await Basket.query(on: req.db)
+                .filter(\.$userId == userId)
+                .group(.or) { group in
+                    group.filter(\.$status == .new)
+                    group.filter(\.$status == .inprogress)
+                }
+                .all()
+        
+        if result.isEmpty {
+            let uuid = UUID()
+            let basket = BasketDTO(id: uuid, status: .new).toModel(userId: userId)
+            let basketDescription = BasketDescriptionDTO(
+                itemId: item.id,
+                basketId: uuid,
+                price: 0,
+                lon: 0,
+                lat: 0).toModel(userId: userId)
+            
+            try await req.db.transaction { database in
+                try await basket.save(on: database)
+                try await basketDescription.save(on: database)
+            }
+            
+            return .noContent
+        } else {
+            let basket = result.first!
+            let basketDescription = BasketDescriptionDTO(
+                itemId: item.id,
+                basketId: basket.id,
+                price: 0,
+                lon: 0,
+                lat: 0).toModel(userId: userId)
+            try await basketDescription.save(on: req.db)
+        }
+        
+        return .noContent
     }
 
     @Sendable

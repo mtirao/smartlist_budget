@@ -15,8 +15,11 @@ final class BasketDesscription: Model, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
     
-    @Field(key: "item_id")
-    var itemId: UUID
+    @Field(key: "date")
+    var date: Date?
+    
+    @Parent(key: "item_id")
+    var item: Item
     
     @Field(key: "user_id")
     var userId: String
@@ -28,31 +31,34 @@ final class BasketDesscription: Model, @unchecked Sendable {
     var price: Double
     
     @Field(key: "lon")
-    var lon: Double
+    var lon: Double?
     
     @Field(key: "lat")
-    var lat: Double
+    var lat: Double?
     
     init() { }
 
-    init(id: UUID? = nil, itemId: UUID, userId: String, basketId: UUID, price: Double, lon: Double, lat: Double) {
+    init(id: UUID? = nil, item: Item, userId: String, basketId: UUID, price: Double, date: Date? = nil, lon: Double? = nil, lat: Double? = nil) {
         self.id = id
-        self.itemId = itemId
+        self.item = item
         self.userId = userId
         self.basketId = basketId
         self.price = price
         self.lon = lon
         self.lat = lat
+        self.date = date
     }
     
     func toDTO() -> BasketDescriptionDTO {
-        .init(
+        return BasketDescriptionDTO(
             id: self.id,
-            itemId: self.$itemId.value,
-            basketId: self.$basketId.value,
-            price: self.$price.value,
-            lon: self.$lon.value,
-            lat: self.$lat.value)
-        
+            itemId: self.item.id,
+            basketId:self.basketId,
+            price: self.price,
+            lon: self.lon,
+            lat: self.lat,
+            name: self.item.name,
+            sku: self.item.sku,
+            category: self.item.category)
     }
 }
