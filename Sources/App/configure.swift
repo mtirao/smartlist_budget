@@ -26,6 +26,8 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateBudget())
     app.migrations.add(CreateInvoice())
     app.migrations.add(CreateTender())
+    app.migrations.add(CreateItem())
+    app.migrations.add(CreateBasket())
     // register routes
     try routes(app)
 }

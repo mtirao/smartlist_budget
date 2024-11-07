@@ -13,7 +13,9 @@ struct BudgetController: RouteCollection {
 
     @Sendable
     func create(req: Request) async throws -> BudgetDTO {
-        let todo = try req.content.decode(BudgetDTO.self).toModel()
+        guard let userId = req.parameters.get("userID") else { return BudgetDTO() }
+        
+        let todo = try req.content.decode(BudgetDTO.self).toModel(userId: userId)
         try await todo.save(on: req.db)
         return todo.toDTO()
     }

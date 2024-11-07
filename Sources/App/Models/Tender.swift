@@ -42,8 +42,7 @@ final class Tender: Model, @unchecked Sendable {
             id: self.id,
             type: self.$type.value,
             number: self.$number.value,
-            alias: self.$alias.value,
-            user_id: self.$userId.value
+            alias: self.$alias.value
         )
     }
 }

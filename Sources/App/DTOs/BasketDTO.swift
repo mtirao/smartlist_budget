@@ -9,34 +9,34 @@ import Foundation
 import Fluent
 import Vapor
 
-struct ItemDTO: Content {
+struct BasketDTO: Content {
 
     let id: UUID?
-    var name: String?
-    var sku: String?
-    var category: String?
+    var date: Date?
+    var status: Status?
+    var tenderId: UUID?
     
-    init( id: UUID? = nil, name: String? = nil, sku: String? = nil, category: String? = nil) {
+    init( id: UUID? = nil, date: Date? = nil, status: Status? = nil, tenderId: UUID? = nil) {
         self.id = id
-        self.name = name
-        self.sku = sku
-        self.category = category
+        self.date = date
+        self.status = status
+        self.tenderId = tenderId
     }
     
-    func toModel(userId: String) -> Item {
-        let model = Item()
+    func toModel(userId: String) -> Basket {
+        let model = Basket()
         
         model.id = self.id
-        if let name = self.name {
-            model.name = name
+        if let date = self.date {
+            model.date = date
         }
         
-        if let sku = self.sku {
-            model.sku = sku
+        if let status = self.status {
+            model.status = status
         }
         
-        if let category = self.category {
-            model.category = category
+        if let tenderId = self.tenderId {
+            model.tenderId = tenderId
         }
         
         model.userId = userId

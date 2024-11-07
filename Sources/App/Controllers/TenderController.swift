@@ -32,7 +32,9 @@ struct TenderController: RouteCollection {
 
     @Sendable
     func create(req: Request) async throws -> TenderDTO {
-        let todo = try req.content.decode(TenderDTO.self).toModel()
+        guard let userId = req.parameters.get("userID") else { return TenderDTO() }
+        
+        let todo = try req.content.decode(TenderDTO.self).toModel(userId: userId)
 
         try await todo.save(on: req.db)
         return todo.toDTO()

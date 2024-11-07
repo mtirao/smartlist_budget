@@ -8,42 +8,40 @@
 import Fluent
 import Foundation
 
-
-final class Tender: Model, @unchecked Sendable {
-    static let schema = "tenders"
+final class Item: Model, @unchecked Sendable {
+    static let schema = "items"
     
     @ID(key: .id)
     var id: UUID?
     
-    @Field(key: "type")
-    var type: String
+    @Field(key: "name")
+    var name: String
     
-    @Field(key: "number")
-    var number: String
+    @Field(key: "sku")
+    var sku: String
     
-    @Field(key: "alias")
-    var alias: String
+    @Field(key: "category")
+    var category: String
     
     @Field(key: "user_id")
     var userId: String
 
     init() { }
 
-    init(id: UUID? = nil, type: String, number: String, alias: String, userId: String) {
+    init(id: UUID? = nil, name: String, sku: String, category: String, userId: String) {
         self.id = id
-        self.type = type
-        self.number = number
-        self.alias = alias
+        self.name = name
+        self.sku = sku
+        self.category = category
         self.userId = userId
     }
     
-    func toDTO() -> TenderDTO {
+    func toDTO() -> ItemDTO {
         .init(
             id: self.id,
-            type: self.$type.value,
-            number: self.$number.value,
-            alias: self.$alias.value,
-            user_id: self.$userId.value
+            name: self.$name.value,
+            sku: self.$sku.value,
+            category: self.$category.value
         )
     }
 }

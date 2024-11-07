@@ -14,9 +14,15 @@ struct BudgetDTO: Content {
     let name: String?
     let amount: Double?
     let date: Date?
-    let user_id: String?
     
-    func toModel() -> Budget {
+    init(id: UUID? = nil, name: String? = nil, amount: Double? = nil, date: Date? = nil) {
+        self.id = id
+        self.name = name
+        self.amount = amount
+        self.date = date
+    }
+    
+    func toModel(userId: String) -> Budget {
         let model = Budget()
         
         model.id = self.id
@@ -34,9 +40,8 @@ struct BudgetDTO: Content {
             model.amount = amount
         }
         
-        if let userid = self.user_id {
-            model.userId = userid
-        }
+        model.userId = userId
+        
         return model
     }
 }

@@ -9,14 +9,29 @@ import Foundation
 import Fluent
 import Vapor
 
+
+
 struct TenderDTO: Content {
     let id: UUID?
     let type: String?
     let number: String?
     let alias: String?
-    let user_id: String?
     
-    func toModel() -> Tender {
+    init() {
+        self.id = nil
+        self.type = nil
+        self.number = nil
+        self.alias = nil
+    }
+    
+    init(id: UUID? = nil, type: String? = nil, number: String? = nil, alias: String? = nil ) {
+        self.id = id
+        self.type = type
+        self.number = number
+        self.alias = alias
+    }
+    
+    func toModel(userId: String) -> Tender {
         let model = Tender()
         
         model.id = self.id
@@ -32,9 +47,7 @@ struct TenderDTO: Content {
             model.alias = alias
         }
         
-        if let userid = self.user_id {
-            model.userId = userid
-        }
+        model.userId = userId
         
         return model
     }

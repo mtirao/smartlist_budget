@@ -26,7 +26,9 @@ struct InvoiceController: RouteCollection {
 
     @Sendable
     func create(req: Request) async throws -> InvoiceDTO {
-        let todo = try req.content.decode(InvoiceDTO.self).toModel()
+        guard let userId = req.parameters.get("userID") else { return InvoiceDTO() }
+        
+        let todo = try req.content.decode(InvoiceDTO.self).toModel(userId: userId)
 
         try await todo.save(on: req.db)
         return todo.toDTO()

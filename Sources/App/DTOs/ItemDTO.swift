@@ -12,13 +12,15 @@ import Vapor
 struct ItemDTO: Content {
 
     let id: UUID?
-    var date: Date?
-    var status: Status?
+    var name: String?
+    var sku: String?
+    var category: String?
     
-    init( id: UUID? = nil, date: Date? = nil, status: Status? = nil) {
+    init( id: UUID? = nil, name: String? = nil, sku: String? = nil, category: String? = nil) {
         self.id = id
-        self.date = date
-        self.status = status
+        self.name = name
+        self.sku = sku
+        self.category = category
     }
     
     func toModel(userId: String) -> Item {

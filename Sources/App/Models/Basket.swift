@@ -1,5 +1,5 @@
 //
-//  Tender.swift
+//  Basket.swift
 //
 //
 //  Created by Marcos Tirao on 15/08/2024.
@@ -8,40 +8,45 @@
 import Fluent
 import Foundation
 
-final class Item: Model, @unchecked Sendable {
-    static let schema = "items"
+enum Status: Codable, CaseIterable {
+    case new
+    case inprogress
+    case delivered
+    case closed
+}
+
+final class Basket: Model, @unchecked Sendable {
+    static let schema = "baskets"
     
     @ID(key: .id)
     var id: UUID?
     
-    @Field(key: "name")
-    var name: String
+    @Field(key: "date")
+    var date: Date
     
-    @Field(key: "sku")
-    var sku: String
+    @Field(key: "status")
+    var status: Status
     
-    @Field(key: "category")
-    var category: String
+    @Field(key: "tender_id")
+    var tenderId: UUID
     
     @Field(key: "user_id")
     var userId: String
 
     init() { }
 
-    init(id: UUID? = nil, name: String, sku: String, category: String, userId: String) {
+    init(id: UUID? = nil, date: Date, status: Status, userId: String, tenderId: UUID) {
         self.id = id
-        self.name = name
-        self.sku = sku
-        self.category = category
+        self.date = date
+        self.status = status
         self.userId = userId
+        self.tenderId = tenderId
     }
     
-    func toDTO() -> ItemDTO {
+    func toDTO() -> BasketDTO {
         .init(
             id: self.id,
-            name: self.$name.value,
-            sku: self.$sku.value,
-            category: self.$category.value
-        )
+            date: self.$date.value,
+            status: self.$status.value)
     }
 }

@@ -41,8 +41,7 @@ final class Budget: Model, @unchecked Sendable {
             id: self.id,
             name: self.$name.value,
             amount: self.$amount.value, 
-            date: self.$date.value,
-            user_id: self.$userId.value
+            date: self.$date.value
         )
     }
 }
