@@ -17,8 +17,25 @@ struct BasketController: RouteCollection {
             todo.delete(use: self.delete)
         }
         tender.get(use: self.fetch)
+        tender.put(use: self.update)
     }
 
+    @Sendable
+    func update(req: Request) async throws -> HTTPStatus {
+        guard let userId = req.parameters.get("userID") else { throw Abort(.notFound) }
+        
+        let todo = try req.content.decode(BasketUpdateDTO.self)
+        
+        try await Basket.query(on: req.db)
+            .set(\.$status, to: Status.closed)
+            .set(\.$tenderId, to: todo.tender)
+            .filter(\.$id == todo.id)
+            .filter(\.$userId == userId)
+            .update()
+        
+        return .noContent
+    }
+    
     @Sendable
     func fetch(req: Request) async throws -> [BasketDTO] {
         guard let userId = req.parameters.get("userID") else { return [] }

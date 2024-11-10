@@ -1,4 +1,5 @@
 import Fluent
+import FluentSQL
 import Vapor
 
 struct BudgetController: RouteCollection {
@@ -23,25 +24,22 @@ struct BudgetController: RouteCollection {
     @Sendable
     func fetch(req: Request) async throws -> BudgetsDTO {
         guard let userId = req.parameters.get("userID") else { return emptyBudgetDTO }
+        guard let sql = req.db as? SQLDatabase else { return emptyBudgetDTO }
         
-        let result = try await Budget.query(on: req.db).filter(\.$userId == userId).all().map { $0.toDTO() }.filter{ $0.date != nil}.grouped(by: \.date)
-        if result.isEmpty {
-            return emptyBudgetDTO
+        let budgets = try await sql.raw(
+            "select user_id,name, date, sum(amount) as amount from budgets where user_id = '\(unsafeRaw: userId)' group by user_id,date,name")
+            .all(decodingFluent: Budget.self)
+            .map { $0.toDTO() }
+            .filter{ $0.date != nil}
+            
+        if !budgets.isEmpty {
+           let result =  budgets
+                    .grouped(by: \.date)
+                    .compactMapValues{ $0.map{ BillDTO(name: $0.name ?? "Other", amount: $0.amount ?? 0)} }
+                    
+            return BudgetsDTO(budgets: result)
         }
         
-        var budgets: [Date : [BillDTO]] = [:]
-        
-        for (date, value) in result.mapValues({$0.grouped(by: \.name)}) {
-            var bills: [BillDTO] = []
-            for (name, value1) in value {
-                let amount = value1.reduce(0, {accum, newValue in (newValue.amount ?? 0) + accum})
-                bills.append(BillDTO(name: name ?? "Other", amount: amount))
-            }
-            if let date {
-                budgets[date] = bills
-            }
-        }
-        
-        return BudgetsDTO(budgets: budgets)
+        return emptyBudgetDTO
     }
 }

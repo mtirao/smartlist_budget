@@ -51,7 +51,7 @@ struct BudgetDTO: Content {
 struct BudgetsDTO: Content {
     let budgets: [BudgetDescriptionDTO]
     
-    init(budgets: [Date : [BillDTO]]) {
+    init(budgets: [Date? : [BillDTO]]) {
         guard budgets.isEmpty == false else {
             self.budgets = []
             return
@@ -59,14 +59,14 @@ struct BudgetsDTO: Content {
         var aux: [BudgetDescriptionDTO] = []
         
         for date in budgets.keys {
-            aux.append( BudgetDescriptionDTO(date: date.description, bills: budgets[date] ?? []) )
+            aux.append( BudgetDescriptionDTO(date: date?.description, bills: budgets[date] ?? []) )
         }
         self.budgets = aux
     }
 }
 
 struct BudgetDescriptionDTO: Content {
-    let date: String
+    let date: String?
     let bills: [BillDTO]
 }
 
