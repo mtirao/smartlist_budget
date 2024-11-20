@@ -24,18 +24,15 @@ struct BudgetController: RouteCollection {
     @Sendable
     func fetch(req: Request) async throws -> BudgetsDTO {
         guard let userId = req.parameters.get("userID") else { return emptyBudgetDTO }
-        guard let sql = req.db as? SQLDatabase else { return emptyBudgetDTO }
         
-        let budgets = try await sql.raw(
-            "select user_id,name, date, sum(amount) as amount from budgets where user_id = '\(unsafeRaw: userId)' group by user_id,date,name")
-            .all(decodingFluent: Budget.self)
-            .map { $0.toDTO() }
-            .filter{ $0.date != nil}
-            
+        let budgets = try await BudgetView.query(on: req.db)
+            .filter(\.$id == userId)
+            .all()
+        
         if !budgets.isEmpty {
            let result =  budgets
                     .grouped(by: \.date)
-                    .compactMapValues{ $0.map{ BillDTO(name: $0.name ?? "Other", amount: $0.amount ?? 0)} }
+                    .compactMapValues{ $0.map{ BillDTO(name: $0.name, amount: $0.amount)} }
                     
             return BudgetsDTO(budgets: result)
         }
