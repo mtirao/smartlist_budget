@@ -7,9 +7,12 @@ import Data.Int (Int32, Int64)
 import Data.Text.Lazy
 import Data.Text.Internal.Lazy
 import Data.Time.Clock
+import Data.Time.Clock.POSIX
 import qualified Data.Text.Lazy.Encoding as TL
 import qualified Data.ByteString.Internal as BI
 import qualified Data.ByteString.Lazy.Internal as BL 
+
+import Control.Monad.IO.Class
 
 import Web.Scotty ( body, header, status, ActionM )
 import Web.Scotty.Internal.Types (ActionT)
@@ -50,9 +53,6 @@ decodeToken t = case token of
                 where 
                     token = hmacDecode "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" $ tokenFromHeader t
 
-tokenExperitionTime :: Payload -> Int64
-tokenExperitionTime (Payload u e) = e
-
 nanosSinceEpoch :: NominalDiffTime -> Int64
 nanosSinceEpoch = floor  . nominalDiffTimeToSeconds
 
@@ -67,3 +67,12 @@ refreshTokenExp u = secondsSinceEpoch u + 864000 * 2
 
 toInt64 :: NominalDiffTime -> Int64
 toInt64 = secondsSinceEpoch
+
+validateToken :: Payload -> ActionT IO () -> ActionT IO ()
+validateToken token action = do 
+                        curTime <- liftIO getPOSIXTime
+                        if tokenExperitionTime token >= toInt64 curTime then 
+                            action
+                        else do
+                            jsonResponse (ErrorMessage "Token expired")
+                            status unauthorized401 

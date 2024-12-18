@@ -53,18 +53,18 @@ findTender :: Text -> Connection -> IO (Either QueryError [Tender Result])
 findTender userId conn = do
                             let query = select $ do
                                             t <- each tenderSchema
-                                            where_ $ (t.tenderUserIdT ==. lit userId)
+                                            where_ (t.tenderUserIdT ==. lit userId)
                                             return t
                             run (statement () query ) conn
 
 -- INSERT
 insertTender :: TenderDTO -> Connection -> IO (Either QueryError [UUID])
-insertTender p  conn = run (statement () (insert1 p)) conn
+insertTender p = run (statement () (insert1 p))
 
 insert1 :: TenderDTO -> Statement () [UUID]
 insert1 t = insert $ Insert
             { into = tenderSchema
-            , rows = values [ Tender (lit $ t.tenderId) (lit $ t.tenderType) (lit $ t.tenderNumber) (lit $ t.tenderAlias) (lit $ t.tenderUserId)]
+            , rows = values [ Tender (lit t.tenderId) (lit t.tenderType) (lit t.tenderNumber) (lit t.tenderAlias) (lit t.tenderUserId)]
             , returning = Projection (.tenderIdT)
             , onConflict = Abort
             }
@@ -78,7 +78,7 @@ delete1 :: UUID -> Statement () [UUID]
 delete1 u  = delete $ Delete
             { from = tenderSchema
             , using = pure ()
-            , deleteWhere = \t ui -> (ui.tenderIdT ==. lit u)
+            , deleteWhere = \t ui -> ui.tenderIdT ==. lit u
             , returning = Projection (.tenderIdT)
             }
 
