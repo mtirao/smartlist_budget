@@ -13,7 +13,7 @@ import Data.UUID
 
 -- Login Response
 data TenderDTO = TenderDTO
-    { tenderId :: UUID
+    { tenderId :: Maybe UUID
     , tenderType :: T.Text
     , tenderNumber :: T.Text
     , tenderAlias :: T.Text
@@ -36,13 +36,3 @@ instance FromJSON TenderDTO where
         v .:  "number" <*>
         v .:  "alias" <*>
         v .: "user_id"
-
--- Getters
--- getTenderType :: TenderDTO -> T.Text
--- getTenderType a = T.pack (TL.unpack (tenderType a))
-
--- getTenderNumber :: TenderDTO -> T.Text
--- getTenderNumber a = T.pack (TL.unpack (tenderNumber a))
-
--- getTenderAlias :: TenderDTO -> T.Text
--- getTenderAlias a = T.pack (TL.unpack (tenderAlias a))

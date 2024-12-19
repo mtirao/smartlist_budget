@@ -58,11 +58,21 @@ executable smartlist-budget
                     , uuid
     other-modules: 
         TenderDTO
+        , ItemDTO
+        , InvoiceDTO
+        , BudgetDTO
+        , BasketDTO
+        , BasketDescDTO
         , ErrorMessage
         , Payload
         , Hardcoded
         , Views
         , Tender
+        , Invoice
+        , Budget
+        , Basket
+        , BasketDesc
+        , Item
         , TenderController
         , Connection
         , Evaluator

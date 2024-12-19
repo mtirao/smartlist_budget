@@ -7,10 +7,11 @@
 {-# language StandaloneDeriving #-}
 {-# language TypeFamilies #-}
 
-module Tender where
+module Budget where
 
 import Control.Monad.IO.Class
 import Data.Text (Text, unpack, pack)
+import Data.Int (Int32, Int64)
 import Data.UUID
 import GHC.Generics (Generic)
 import Hasql.Connection (Connection, ConnectionError, acquire, release, settings)
@@ -20,68 +21,68 @@ import Rel8
 import Prelude hiding (filter, null)
 import Hardcoded
 
-import TenderDTO
+import BudgetDTO
 import Data.UUID.V1 (nextUUID)
 
+
 -- Rel8 Schemma Definitions
-data Tender f = Tender
-    {tenderIdT :: Column f ( Maybe UUID)
-    , tenderTypeT :: Column f Text
-    , tenderNumberT :: Column f Text
-    , tenderAliasT :: Column f Text
-    , tenderUserIdT :: Column f Text
+data Budget f = Budget
+    {budgetIdT :: Column f ( Maybe UUID)
+    , budgetAmountT :: Column f Float
+    , budgetDateT :: Column f Int64
+    , budgetNameT :: Column f Text
+    , budgetUserIdT :: Column f Text
     }
     deriving (Generic, Rel8able)
 
-deriving stock instance f ~ Rel8.Result => Show (Tender f)
+deriving stock instance f ~ Rel8.Result => Show (Budget f)
 
-tenderSchema :: TableSchema (Tender Name)
-tenderSchema = TableSchema
-    { name = "tenders"
+budgetSchema :: TableSchema (Budget Name)
+budgetSchema = TableSchema
+    { name = "budgets"
     , schema = Nothing
-    , columns = Tender
-        { tenderIdT = "id"
-        , tenderTypeT = "type"
-        , tenderNumberT = "number"
-        , tenderAliasT = "alias"
-        , tenderUserIdT = "user_id"
+    , columns = Budget
+        { budgetIdT = "id"
+        , budgetAmountT = "amount"
+        , budgetDateT = "date"
+        , budgetNameT = "name"
+        , budgetUserIdT = "user_id"
         }
     }
 
 -- Functions
 --GET
-findTender :: Text -> Connection -> IO (Either QueryError [Tender Result])
-findTender userId conn = do
+findBudget :: Text -> Connection -> IO (Either QueryError [Budget Result])
+findBudget userId conn = do
                             let query = select $ do
-                                            t <- each tenderSchema
-                                            where_ (t.tenderUserIdT ==. lit userId)
-                                            return t
+                                            i <- each budgetSchema
+                                            where_ (i.budgetUserIdT ==. lit userId)
+                                            return i
                             run (statement () query ) conn
 
 -- INSERT
-insertTender :: TenderDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertTender p = run (statement () (insert1 p))
+insertBudget :: BudgetDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+insertBudget p = run (statement () (insert1 p))
 
-insert1 :: TenderDTO -> Statement () [Maybe UUID]
+insert1 :: BudgetDTO -> Statement () [Maybe UUID]
 insert1 t = insert $ Insert
-            { into = tenderSchema
-            , rows = values [ Tender (lit Nothing) (lit t.tenderType) (lit t.tenderNumber) (lit t.tenderAlias) (lit t.tenderUserId)]
-            , returning = Projection (.tenderIdT)
+            { into = budgetSchema
+            , rows = values [ Budget (lit Nothing) (lit t.budgetAmount) (lit t.budgetDate) (lit t.budgetName) (lit t.budgetUserId)]
+            , returning = Projection (.budgetIdT)
             , onConflict = Abort
             }
 
 
 -- DELETE
-deleteTender :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteTender u conn = do
-                        run (statement () (delete1 u )) conn
+deleteBudget :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteBudget u conn = run (statement () (delete1 u )) conn
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete
-            { from = tenderSchema
+            { from = budgetSchema
             , using = pure ()
-            , deleteWhere = \t ui -> ui.tenderIdT ==. lit u
-            , returning = Projection (.tenderIdT)
+            , deleteWhere = \t ui -> ui.budgetIdT ==. lit u
+            , returning = Projection (.budgetIdT)
             }
 
 -- UPDATE
@@ -98,7 +99,7 @@ delete1 u  = delete $ Delete
 --             , returning = Projection (.userId)
 --             }
 
--- Helpers
-toTenderDTO :: Tender Result -> TenderDTO
-toTenderDTO t = TenderDTO t.tenderIdT t.tenderTypeT t.tenderNumberT t.tenderAliasT t.tenderUserIdT
 
+-- Helpers
+toBudgetDTO :: Budget Result -> BudgetDTO
+toBudgetDTO t = BudgetDTO t.budgetIdT t.budgetAmountT t.budgetDateT t.budgetNameT t.budgetUserIdT

@@ -39,5 +39,5 @@ main = do
                                         idd <- param "id" :: ActionM TL.Text
                                         getTender (TI.pack (TL.unpack idd)) connection
         post "/api/wanaka/profile" $ createTender body connection
-        delete "/api/wanaka/profile" $ deleteTender connection
+        delete "/api/wanaka/profile" $ removeTender connection
         post "/api/wanaka/profile" $ updateTender body connection

@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-overlapping-patterns #-}
-module TenderController(getTender, createTender, deleteTender, updateTender) where
+module TenderController(getTender, createTender, removeTender, updateTender) where
 
 import TenderDTO
 import Views ( jsonResponse )
@@ -30,7 +30,7 @@ getTender userId conn =  do
                             auth <- header "Authorization"
                             let token =  decodeAuthHdr auth
                             result <- liftIO $ findTender userId conn
-                            evaluateToken token result
+                            tenderServiceWithBody token result
                 
 createTender body conn =  do
                             auth <- header "Authorization"
@@ -41,28 +41,28 @@ createTender body conn =  do
                                 Nothing -> status badRequest400
                                 Just a -> do 
                                             result <- liftIO $ insertTender a conn
-                                            evaluateTokenWithBody token result
+                                            tenderService token result
                                             
                                             
-deleteTender conn = status unauthorized401
+removeTender conn = status unauthorized401
 
 updateTender body conn = status unauthorized401 
 
--- Helpers
-evaluateTokenWithBody Nothing result = do 
-                                            jsonResponse (ErrorMessage "Invalid token payload")
-                                            status unauthorized401
-evaluateTokenWithBody (Just token) result = validateToken token responseData
-                                            where responseData = case result of
-                                                    Right [] -> do
-                                                            jsonResponse (ErrorMessage "Tender not found")
-                                                            status badRequest400
-                                                    Right [a] -> status noContent204
+-- Services
+tenderService Nothing result = do 
+                                jsonResponse (ErrorMessage "Invalid token payload")
+                                status unauthorized401
+tenderService(Just token) result = validateToken token responseData
+                            where responseData = case result of
+                                    Right [] -> do
+                                            jsonResponse (ErrorMessage "Tender not found")
+                                            status badRequest400
+                                    Right [a] -> status noContent204
 
-evaluateToken Nothing result = do 
+tenderServiceWithBody Nothing result = do 
                             jsonResponse (ErrorMessage "Invalid token payload")
                             status unauthorized401
-evaluateToken (Just token) result = validateToken token responseData
+tenderServiceWithBody (Just token) result = validateToken token responseData
                                     where responseData =  case result of
                                                 Right [] -> do
                                                         jsonResponse (ErrorMessage "Tender not found")
