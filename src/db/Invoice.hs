@@ -62,8 +62,8 @@ findInvoice userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-invoiceItem :: InvoiceDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-invoiceItem p = run (statement () (insert1 p))
+insertInvoice :: InvoiceDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+insertInvoice p = run (statement () (insert1 p))
 
 insert1 :: InvoiceDTO -> Statement () [Maybe UUID]
 insert1 t = insert $ Insert

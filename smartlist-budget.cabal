@@ -74,6 +74,11 @@ executable smartlist-budget
         , BasketDesc
         , Item
         , TenderController
+        , ItemController
+        , InvoiceController
+        , BudgetController
+        , BasketController
+        , BasketDescController
         , Connection
         , Evaluator
         
