@@ -1,0 +1,9 @@
+POST http://localhost:3000/api/v1/tender HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MzU2NzI2NTksInVzZXIiOiI5MjUyNTg0MCJ9.Zly90rYFOba1HawBgukdQFOEiOHye3ruL2jmN1t_JHc
+content-type: application/json
+
+{
+    "type": "Debit" ,
+    "number": "1111 2222 3333 4444",
+    "alias": "BBVA Aqua"
+}

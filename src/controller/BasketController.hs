@@ -18,6 +18,9 @@ import Network.HTTP.Types.Status
 
 import Data.Aeson
 import Data.UUID
+import Data.Text.Lazy
+import Data.Text.Internal.Lazy
+import Data.UUID.V1 (nextUUID)
 
 import Jose.Jws
 import Jose.Jwa
@@ -26,46 +29,42 @@ import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 
 --- Basket
-getBasket userId conn =  do
-                            auth <- header "Authorization"
-                            let token =  decodeAuthHdr auth
-                            result <- liftIO $ findBasket userId conn
-                            basketServiceWithBody token result
+getBasket conn =  do
+                    auth <- header "Authorization"
+                    payload <- liftIO $ validateToken auth
+                    case payload of 
+                        Nothing -> do 
+                                    jsonResponse (ErrorMessage "Invalid token payload")
+                                    status unauthorized401
+                        Just token -> do 
+                                        result <- liftIO $ findBasket (toStrict token.user) conn
+                                        case result of
+                                            Right [] -> do
+                                                    jsonResponse (ErrorMessage "Basket not found")
+                                                    status badRequest400
+                                            Right [a] -> jsonResponse $ toBasketDTO a
                 
 createBasket body conn =  do
                             auth <- header "Authorization"
                             b <- body
                             let profile = (decode b :: Maybe BasketDTO)
                             let token =  decodeAuthHdr auth
-                            case profile of
-                                Nothing -> status badRequest400
-                                Just a -> do 
-                                            result <- liftIO $ insertBasket a conn
-                                            basketService token result
+                            payload <- liftIO $ validateToken auth
+                            uuid <- liftIO nextUUID
+                            case (profile, payload) of
+                                (Just a, Just token) -> do 
+                                            result <- liftIO $ insertBasket a (toStrict token.user) uuid conn
+                                            case result of
+                                                Right [] -> do
+                                                        jsonResponse (ErrorMessage "Basket not found")
+                                                        status badRequest400
+                                                Right a  -> status noContent204
+                                (Nothing, Nothing) -> status badRequest400
+                                (_, Nothing) -> status badRequest400
+                                (Nothing, _) -> status badRequest400
                                             
                                             
 removeBasket conn = status unauthorized401
 
 updateBasket body conn = status unauthorized401 
-
--- Services
-basketService Nothing result = do 
-                                jsonResponse (ErrorMessage "Invalid token payload")
-                                status unauthorized401
-basketService(Just token) result = validateToken token responseData
-                            where responseData = case result of
-                                    Right [] -> do
-                                            jsonResponse (ErrorMessage "Tender not found")
-                                            status badRequest400
-                                    Right [a] -> status noContent204
-
-basketServiceWithBody Nothing result = do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-basketServiceWithBody (Just token) result = validateToken token responseData
-                                    where responseData =  case result of
-                                                Right [] -> do
-                                                        jsonResponse (ErrorMessage "Tender not found")
-                                                        status badRequest400
-                                                Right [a] -> jsonResponse $ toBasketDTO a
 

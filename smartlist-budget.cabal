@@ -20,6 +20,8 @@ executable smartlist-budget
                     ,src/controller
                     ,src/dto
                     ,src/helpers
+                    ,src/repository
+                    ,src/service
     main-is:        Main.hs
     ghc-options:    -threaded -O2 -rtsopts -with-rtsopts=-N -Wno-deprecations -Wno-unused-imports -Wno-type-equality-out-of-scope -Wno-type-equality-requires-operators
     default-extensions:     
@@ -81,4 +83,6 @@ executable smartlist-budget
         , BasketDescController
         , Connection
         , Evaluator
+        , Repository
+        , Service
         

@@ -67,20 +67,20 @@ findBasketDesc userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertBasketDesc :: BasketDescDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertBasketDesc p = run (statement () (insert1 p))
+insertBasketDesc :: BasketDescDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertBasketDesc p u i = run (statement () (insert1 p u i))
 
-insert1 :: BasketDescDTO -> Statement () [Maybe UUID]
-insert1 t = insert $ Insert
+insert1 :: BasketDescDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
+insert1 t u i = insert $ Insert
             { into = basketDescSchema
-            , rows = values [ BasketDesc (lit Nothing) (lit t.basketDescBasketId) (lit t.basketDescDate) (lit t.basketDescItemId) (lit t.basketDescLat) (lit t.basketDescLon) (lit t.basketDescPrice) (lit t.basketDescUserId)]
+            , rows = values [ BasketDesc (lit i) (lit t.basketDescBasketId) (lit t.basketDescDate) (lit t.basketDescItemId) (lit t.basketDescLat) (lit t.basketDescLon) (lit t.basketDescPrice) (lit u)]
             , returning = Projection (.basketDescIdT)
             , onConflict = Abort
             }
 
 -- DELETE
 deleteBasketDesc :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBasketDesc u conn = run (statement () (delete1 u )) conn
+deleteBasketDesc u = run (statement () (delete1 u ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete
@@ -106,4 +106,4 @@ delete1 u  = delete $ Delete
 
 -- Helpers
 toBasketDescDTO :: BasketDesc Result -> BasketDescDTO
-toBasketDescDTO t = BasketDescDTO t.basketDescIdT t.basketDescBasketIdT t.basketDescDateT t.basketDescItemIdT t.basketDescLatT t.basketDescLonT t.basketDescPriceT t.basketDescUserIdT
+toBasketDescDTO t = BasketDescDTO t.basketDescIdT t.basketDescBasketIdT t.basketDescDateT t.basketDescItemIdT t.basketDescLatT t.basketDescLonT t.basketDescPriceT

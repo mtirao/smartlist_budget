@@ -18,7 +18,6 @@ data BudgetDTO = BudgetDTO
     , budgetAmount :: Float
     , budgetDate :: Int64
     , budgetName :: T.Text
-    , budgetUserId :: T.Text
     } deriving (Show)
  
 instance ToJSON BudgetDTO where
@@ -26,8 +25,7 @@ instance ToJSON BudgetDTO where
             "id" .= budgetId,
             "amount" .= budgetAmount,
             "date" .= budgetDate,
-            "name" .= budgetName,
-            "user_id" .= budgetUserId
+            "name" .= budgetName
         ]
 
 instance FromJSON BudgetDTO where
@@ -35,5 +33,4 @@ instance FromJSON BudgetDTO where
         v .:  "id" <*>
         v .:  "amount" <*>
         v .:  "date" <*>
-        v .:  "name" <*>
-        v .: "user_id"
+        v .:  "name"

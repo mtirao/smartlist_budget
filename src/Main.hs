@@ -35,9 +35,7 @@ main = do
         middleware logStdout
 
         -- Tender
-        get "/api/wanaka/profile/:id" $ do  
-                                        idd <- param "id" :: ActionM TL.Text
-                                        getTender (TI.pack (TL.unpack idd)) connection
-        post "/api/wanaka/profile" $ createTender body connection
-        delete "/api/wanaka/profile" $ removeTender connection
-        post "/api/wanaka/profile" $ updateTender body connection
+        get "/api/v1/tender" $ getTender connection
+        post "/api/v1/tender" $ createTender body connection
+        delete "/api/v1/tender" $ removeTender connection
+        put "/api/v1/tender" $ updateTender body connection

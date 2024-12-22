@@ -59,13 +59,13 @@ findBasket userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertBasket :: BasketDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertBasket p = run (statement () (insert1 p))
+insertBasket :: BasketDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertBasket p u i = run (statement () (insert1 p u i))
 
-insert1 :: BasketDTO -> Statement () [Maybe UUID]
-insert1 t = insert $ Insert
+insert1 :: BasketDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
+insert1 t u i = insert $ Insert
             { into = basketSchema
-            , rows = values [ Basket (lit Nothing) (lit t.basketStatus) (lit t.basketTenderId) (lit t.basketUserId)]
+            , rows = values [ Basket (lit i) (lit t.basketStatus) (lit t.basketTenderId) (lit u)]
             , returning = Projection (.basketIdT)
             , onConflict = Abort
             }
@@ -73,7 +73,7 @@ insert1 t = insert $ Insert
 
 -- DELETE
 deleteBasket :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBasket u conn = run (statement () (delete1 u )) conn
+deleteBasket u = run (statement () (delete1 u ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete
@@ -99,4 +99,4 @@ delete1 u  = delete $ Delete
 
 -- Helpers
 toBasketDTO :: Basket Result -> BasketDTO
-toBasketDTO t = BasketDTO t.basketIdT t.basketStatusT t.basketTenderIdT t.basketUserIdT
+toBasketDTO t = BasketDTO t.basketIdT t.basketStatusT t.basketTenderIdT

@@ -21,7 +21,6 @@ data BasketDescDTO = BasketDescDTO
     , basketDescLat :: Float
     , basketDescLon :: Float
     , basketDescPrice :: Float
-    , basketDescUserId :: T.Text
     } deriving (Show)
  
 instance ToJSON BasketDescDTO where
@@ -32,8 +31,7 @@ instance ToJSON BasketDescDTO where
             "item_id" .= basketDescItemId,
             "lat" .= basketDescLat,
             "lon" .= basketDescLon,
-            "price" .= basketDescPrice,
-            "user_id" .= basketDescUserId
+            "price" .= basketDescPrice
         ]
 
 instance FromJSON BasketDescDTO where
@@ -44,5 +42,4 @@ instance FromJSON BasketDescDTO where
         v .:  "item_id" <*>
         v .:  "lat" <*>
         v .:  "lon" <*>
-        v .:  "price" <*>
-        v .: "user_id"
+        v .:  "price"

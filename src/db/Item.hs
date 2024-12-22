@@ -59,13 +59,13 @@ findItem userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertItem :: ItemDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertItem p = run (statement () (insert1 p))
+insertItem :: ItemDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertItem p u i = run (statement () (insert1 p u i))
 
-insert1 :: ItemDTO -> Statement () [Maybe UUID]
-insert1 t = insert $ Insert
+insert1 :: ItemDTO -> Text -> Maybe UUID  -> Statement () [Maybe UUID]
+insert1 t u i = insert $ Insert
             { into = itemSchema
-            , rows = values [ Item (lit Nothing) (lit t.itemCategory) (lit t.itemName) (lit t.itemSku) (lit t.itemUserId)]
+            , rows = values [ Item (lit i) (lit t.itemCategory) (lit t.itemName) (lit t.itemSku) (lit u)]
             , returning = Projection (.itemIdT)
             , onConflict = Abort
             }
@@ -99,5 +99,5 @@ delete1 u  = delete $ Delete
 
 -- Helpers
 toItemDTO :: Item Result -> ItemDTO
-toItemDTO t = ItemDTO t.itemIdT t.itemCategoryT t.itemNameT t.itemSkuT t.itemUserIdT
+toItemDTO t = ItemDTO t.itemIdT t.itemCategoryT t.itemNameT t.itemSkuT
 

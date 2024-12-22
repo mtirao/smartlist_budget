@@ -61,13 +61,13 @@ findBudget userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertBudget :: BudgetDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertBudget p = run (statement () (insert1 p))
+insertBudget :: BudgetDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertBudget p u i = run (statement () (insert1 p u i))
 
-insert1 :: BudgetDTO -> Statement () [Maybe UUID]
-insert1 t = insert $ Insert
+insert1 :: BudgetDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
+insert1 t u i = insert $ Insert
             { into = budgetSchema
-            , rows = values [ Budget (lit Nothing) (lit t.budgetAmount) (lit t.budgetDate) (lit t.budgetName) (lit t.budgetUserId)]
+            , rows = values [ Budget (lit i) (lit t.budgetAmount) (lit t.budgetDate) (lit t.budgetName) (lit u)]
             , returning = Projection (.budgetIdT)
             , onConflict = Abort
             }
@@ -75,7 +75,7 @@ insert1 t = insert $ Insert
 
 -- DELETE
 deleteBudget :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBudget u conn = run (statement () (delete1 u )) conn
+deleteBudget u = run (statement () (delete1 u ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete
@@ -102,4 +102,4 @@ delete1 u  = delete $ Delete
 
 -- Helpers
 toBudgetDTO :: Budget Result -> BudgetDTO
-toBudgetDTO t = BudgetDTO t.budgetIdT t.budgetAmountT t.budgetDateT t.budgetNameT t.budgetUserIdT
+toBudgetDTO t = BudgetDTO t.budgetIdT t.budgetAmountT t.budgetDateT t.budgetNameT

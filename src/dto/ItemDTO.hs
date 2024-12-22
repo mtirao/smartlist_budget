@@ -17,7 +17,6 @@ data ItemDTO = ItemDTO
     , itemCategory :: T.Text
     , itemName :: T.Text
     , itemSku :: T.Text
-    , itemUserId :: T.Text
     } deriving (Show)
  
 instance ToJSON ItemDTO where
@@ -25,8 +24,7 @@ instance ToJSON ItemDTO where
             "id" .= itemId,
             "category" .= itemCategory,
             "name" .= itemName,
-            "sku" .= itemSku,
-            "user_id" .= itemUserId
+            "sku" .= itemSku
         ]
 
 instance FromJSON ItemDTO where
@@ -34,5 +32,4 @@ instance FromJSON ItemDTO where
         v .:  "id" <*>
         v .:  "category" <*>
         v .:  "name" <*>
-        v .:  "sku" <*>
-        v .: "user_id"
+        v .:  "sku"

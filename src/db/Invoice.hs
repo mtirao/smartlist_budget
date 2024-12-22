@@ -62,13 +62,13 @@ findInvoice userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertInvoice :: InvoiceDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertInvoice p = run (statement () (insert1 p))
+insertInvoice :: InvoiceDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertInvoice p u i = run (statement () (insert1 p u i))
 
-insert1 :: InvoiceDTO -> Statement () [Maybe UUID]
-insert1 t = insert $ Insert
+insert1 :: InvoiceDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
+insert1 t u i = insert $ Insert
             { into = invoiceSchema
-            , rows = values [ Invoice (lit Nothing) (lit t.invoiceAmount) (lit t.invoiceBudget) (lit t.invoiceDate) (lit t.invoiceName) (lit t.invoiceUserId)]
+            , rows = values [ Invoice (lit i) (lit t.invoiceAmount) (lit t.invoiceBudget) (lit t.invoiceDate) (lit t.invoiceName) (lit u)]
             , returning = Projection (.invoiceIdT)
             , onConflict = Abort
             }
@@ -76,7 +76,7 @@ insert1 t = insert $ Insert
 
 -- DELETE
 deleteInvoice :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteInvoice u conn = run (statement () (delete1 u )) conn
+deleteInvoice u = run (statement () (delete1 u ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete
@@ -102,5 +102,5 @@ delete1 u  = delete $ Delete
 
 -- Helpers
 toInvoiceDTO :: Invoice Result -> InvoiceDTO
-toInvoiceDTO t = InvoiceDTO t.invoiceIdT t.invoiceAmountT t.invoiceBudgeT t.invoiceDateT t.invoiceNameT t.invoiceUserIdT
+toInvoiceDTO t = InvoiceDTO t.invoiceIdT t.invoiceAmountT t.invoiceBudgeT t.invoiceDateT t.invoiceNameT
 

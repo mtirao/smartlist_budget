@@ -6,6 +6,7 @@
 {-# language OverloadedStrings #-}
 {-# language StandaloneDeriving #-}
 {-# language TypeFamilies #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Tender where
 
@@ -51,21 +52,22 @@ tenderSchema = TableSchema
 -- Functions
 --GET
 findTender :: Text -> Connection -> IO (Either QueryError [Tender Result])
-findTender userId conn = do
-                            let query = select $ do
-                                            t <- each tenderSchema
-                                            where_ (t.tenderUserIdT ==. lit userId)
-                                            return t
-                            run (statement () query ) conn
+findTender userId = run (statement () (select3 userId) )
+
+select3 :: Text -> Statement () [Tender Result]
+select3  userId = select $ do
+                    t <- each tenderSchema
+                    where_ (t.tenderUserIdT ==. lit userId)
+                    pure t
 
 -- INSERT
-insertTender :: TenderDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-insertTender p = run (statement () (insert1 p))
+insertTender :: TenderDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertTender t u i = run (statement () (insert1 t u i))
 
-insert1 :: TenderDTO -> Statement () [Maybe UUID]
-insert1 t = insert $ Insert
+insert1 :: TenderDTO -> Text -> Maybe UUID ->Statement () [Maybe UUID]
+insert1 t u i = insert $ Insert
             { into = tenderSchema
-            , rows = values [ Tender (lit Nothing) (lit t.tenderType) (lit t.tenderNumber) (lit t.tenderAlias) (lit t.tenderUserId)]
+            , rows = values [ Tender (lit i) (lit t.tenderType) (lit t.tenderNumber) (lit t.tenderAlias) (lit u)]
             , returning = Projection (.tenderIdT)
             , onConflict = Abort
             }
@@ -100,5 +102,4 @@ delete1 u  = delete $ Delete
 
 -- Helpers
 toTenderDTO :: Tender Result -> TenderDTO
-toTenderDTO t = TenderDTO t.tenderIdT t.tenderTypeT t.tenderNumberT t.tenderAliasT t.tenderUserIdT
-
+toTenderDTO t = TenderDTO Nothing t.tenderTypeT t.tenderNumberT t.tenderAliasT

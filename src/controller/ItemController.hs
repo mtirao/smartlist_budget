@@ -18,6 +18,9 @@ import Network.HTTP.Types.Status
 
 import Data.Aeson
 import Data.UUID
+import Data.Text.Lazy
+import Data.Text.Internal.Lazy
+import Data.UUID.V1 (nextUUID)
 
 import Jose.Jws
 import Jose.Jwa
@@ -26,46 +29,42 @@ import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 
 --- Item
-getItem userId conn =  do
-                            auth <- header "Authorization"
-                            let token =  decodeAuthHdr auth
-                            result <- liftIO $ findItem userId conn
-                            itemServiceWithBody token result
+getItem conn =  do
+                    auth <- header "Authorization"
+                    payload <- liftIO $ validateToken auth
+                    case payload of 
+                        Nothing -> do 
+                                    jsonResponse (ErrorMessage "Invalid token payload")
+                                    status unauthorized401
+                        Just token -> do 
+                                        result <- liftIO $ findItem (toStrict token.user) conn
+                                        case result of
+                                            Right [] -> do
+                                                    jsonResponse (ErrorMessage "Item not found")
+                                                    status badRequest400
+                                            Right [a] -> jsonResponse $ toItemDTO a
                 
 createItem body conn =  do
                             auth <- header "Authorization"
                             b <- body
                             let profile = (decode b :: Maybe ItemDTO)
                             let token =  decodeAuthHdr auth
-                            case profile of
-                                Nothing -> status badRequest400
-                                Just a -> do 
-                                            result <- liftIO $ insertItem a conn
-                                            itemService token result
+                            payload <- liftIO $ validateToken auth
+                            uuid <- liftIO nextUUID
+                            case (profile, payload) of
+                                (Just a, Just token) -> do 
+                                            result <- liftIO $ insertItem a (toStrict token.user) uuid conn
+                                            case result of
+                                                Right [] -> do
+                                                        jsonResponse (ErrorMessage "Item not found")
+                                                        status badRequest400
+                                                Right a  -> status noContent204
+                                (Nothing, Nothing) -> status badRequest400
+                                (_, Nothing) -> status badRequest400
+                                (Nothing, _) -> status badRequest400
                                             
                                             
 removeItem conn = status unauthorized401
 
 updateItem body conn = status unauthorized401 
-
--- Services
-itemService Nothing result = do 
-                                jsonResponse (ErrorMessage "Invalid token payload")
-                                status unauthorized401
-itemService(Just token) result = validateToken token responseData
-                            where responseData = case result of
-                                    Right [] -> do
-                                            jsonResponse (ErrorMessage "Tender not found")
-                                            status badRequest400
-                                    Right [a] -> status noContent204
-
-itemServiceWithBody Nothing result = do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-itemServiceWithBody (Just token) result = validateToken token responseData
-                                    where responseData =  case result of
-                                                Right [] -> do
-                                                        jsonResponse (ErrorMessage "Tender not found")
-                                                        status badRequest400
-                                                Right [a] -> jsonResponse $ toItemDTO a
 

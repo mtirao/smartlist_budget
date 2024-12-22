@@ -19,7 +19,6 @@ data InvoiceDTO = InvoiceDTO
     , invoiceBudget :: UUID
     , invoiceDate :: Int64
     , invoiceName :: T.Text
-    , invoiceUserId :: T.Text
     } deriving (Show)
  
 instance ToJSON InvoiceDTO where
@@ -28,8 +27,7 @@ instance ToJSON InvoiceDTO where
             "amount" .= invoiceAmount,
             "budget" .= invoiceBudget,
             "date" .= invoiceDate,
-            "name" .= invoiceName,
-            "user_id" .= invoiceUserId
+            "name" .= invoiceName
         ]
 
 instance FromJSON InvoiceDTO where
@@ -38,5 +36,4 @@ instance FromJSON InvoiceDTO where
         v .:  "amount" <*>
         v .:  "budget" <*>
         v .:  "date" <*>
-        v .:  "name" <*>
-        v .: "user_id"
+        v .:  "name"

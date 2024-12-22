@@ -17,7 +17,6 @@ data TenderDTO = TenderDTO
     , tenderType :: T.Text
     , tenderNumber :: T.Text
     , tenderAlias :: T.Text
-    , tenderUserId :: T.Text
     } deriving (Show)
  
 instance ToJSON TenderDTO where
@@ -25,14 +24,12 @@ instance ToJSON TenderDTO where
             "id" .= tenderId,
             "type" .= tenderType,
             "number" .= tenderNumber,
-            "alias" .= tenderAlias,
-            "user_id" .= tenderUserId
+            "alias" .= tenderAlias
         ]
 
 instance FromJSON TenderDTO where
     parseJSON (Object v) = TenderDTO <$>
-        v .:  "id" <*>
+        v .:?  "id" <*>
         v .:  "type" <*>
         v .:  "number" <*>
-        v .:  "alias" <*>
-        v .: "user_id"
+        v .:  "alias"

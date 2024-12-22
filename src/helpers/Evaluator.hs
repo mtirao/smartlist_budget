@@ -68,11 +68,12 @@ refreshTokenExp u = secondsSinceEpoch u + 864000 * 2
 toInt64 :: NominalDiffTime -> Int64
 toInt64 = secondsSinceEpoch
 
-validateToken :: Payload -> ActionT IO () -> ActionT IO ()
-validateToken token action = do 
+validateToken :: Maybe Text -> IO (Maybe Payload)
+validateToken token = do 
                         curTime <- liftIO getPOSIXTime
-                        if tokenExperitionTime token >= toInt64 curTime then 
-                            action
-                        else do
-                            jsonResponse (ErrorMessage "Token expired")
-                            status unauthorized401 
+                        case decodeAuthHdr token of
+                            Nothing -> return Nothing
+                            Just a -> if tokenExperitionTime a >= toInt64 curTime then 
+                                    return $ Just a
+                                else 
+                                    return Nothing
