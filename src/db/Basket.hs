@@ -72,8 +72,8 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteBasket :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBasket u = run (statement () (delete1 u ))
+deleteBasket :: BasketDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteBasket u = run (statement () (delete1 u.basketId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

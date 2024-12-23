@@ -72,8 +72,8 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteItem :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteItem u conn = run (statement () (delete1 u )) conn
+deleteItem :: ItemDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteItem u = run (statement () (delete1 u.itemId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

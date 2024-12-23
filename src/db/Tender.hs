@@ -74,9 +74,9 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteTender :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteTender :: TenderDTO -> Connection -> IO (Either QueryError [Maybe UUID])
 deleteTender u conn = do
-                        run (statement () (delete1 u )) conn
+                        run (statement () (delete1 u.tenderId )) conn
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

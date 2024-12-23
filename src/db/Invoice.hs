@@ -75,8 +75,8 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteInvoice :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteInvoice u = run (statement () (delete1 u ))
+deleteInvoice :: InvoiceDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteInvoice u = run (statement () (delete1 u.invoiceId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

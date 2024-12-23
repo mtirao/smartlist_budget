@@ -74,8 +74,8 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteBudget :: Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBudget u = run (statement () (delete1 u ))
+deleteBudget :: BudgetDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteBudget u = run (statement () (delete1 u.budgetId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

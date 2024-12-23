@@ -1,13 +1,11 @@
 {-# language BlockArguments #-}
-{-# language DeriveAnyClass #-}
-{-# language DeriveGeneric #-}
 {-# language DerivingVia #-}
 {-# language DuplicateRecordFields #-}
 {-# language OverloadedStrings #-}
-{-# language StandaloneDeriving #-}
 {-# language TypeFamilies #-}
-{-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Service where
 
@@ -43,6 +41,12 @@ import Database.PostgreSQL.Simple.ToField (Action)
 import Hasql.Connection (Connection)
 
 import Repository
+import ItemDTO (ItemDTO)
+import InvoiceDTO (InvoiceDTO)
+import BudgetDTO (BudgetDTO)
+import BasketDTO (BasketDTO)
+import BasketDescDTO (BasketDescDTO)
+import Hasql.Session (QueryError)
 
 class Service a where
     createObject :: a -> Maybe Payload -> Connection -> ActionT IO ()
@@ -50,22 +54,22 @@ class Service a where
 instance Service (Maybe TenderDTO) where
     createObject :: Maybe TenderDTO -> Maybe Payload -> Connection -> ActionT IO ()
     createObject tender payload conn = do
-                                        uuid <- liftIO nextUUID
-                                        case (tender, payload) of
-                                            (Just a, Just token) -> do 
-                                                        result <- liftIO $ insertObject a (toStrict token.user) uuid conn
-                                                        case result of
-                                                            Left a ->  do
-                                                                    jsonResponse (ErrorMessage "Query Error")
-                                                                    status badRequest400
-                                                            Right [] -> do
-                                                                    jsonResponse (ErrorMessage "Tender not found")
-                                                                    status badRequest400
-                                                            Right a  -> status noContent204
-                                            (Nothing, Nothing) -> status badRequest400
-                                            (_, Nothing) -> do 
-                                                            jsonResponse (ErrorMessage "Token Invalid")
-                                                            status unauthorized401
-                                            (Nothing, _) -> do 
-                                                            jsonResponse (ErrorMessage "Profile not found")
-                                                            status badRequest400
+        uuid <- liftIO nextUUID
+        case (tender, payload) of
+            (Just obj, Just token) -> do 
+                        result <- liftIO $ insertObject obj (toStrict token.user) uuid conn
+                        case result of
+                            Left a ->  do
+                                    jsonResponse (ErrorMessage "Query Error")
+                                    status badRequest400
+                            Right [] -> do
+                                    jsonResponse (ErrorMessage "Tender not found")
+                                    status badRequest400
+                            Right a  -> status noContent204
+            (Nothing, Nothing) -> status badRequest400
+            (_, Nothing) -> do 
+                            jsonResponse (ErrorMessage "Token Invalid")
+                            status unauthorized401
+            (Nothing, _) -> do 
+                            jsonResponse (ErrorMessage "Profile not found")
+                            status badRequest400

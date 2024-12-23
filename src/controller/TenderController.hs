@@ -35,6 +35,7 @@ import Database.PostgreSQL.Simple.ToField (Action)
 import Hasql.Connection (Connection)
 
 import Service
+import Repository
 
 --- Tender
 getTender conn =  do
@@ -42,15 +43,15 @@ getTender conn =  do
                     payload <- liftIO $ validateToken auth
                     case payload of 
                         Nothing -> do 
-                                    jsonResponse (ErrorMessage "Invalid token payload")
-                                    status unauthorized401
+                            jsonResponse (ErrorMessage "Invalid token payload")
+                            status unauthorized401
                         Just token -> do 
-                                        result <- liftIO $ findTender (toStrict token.user) conn
-                                        case result of
-                                            Right [] -> do
-                                                    jsonResponse (ErrorMessage "Tender not found")
-                                                    status badRequest400
-                                            Right a -> jsonResponse $ Prelude.map toTenderDTO a
+                            result <- liftIO $ findTender (toStrict token.user) conn
+                            case result of
+                                Right [] -> do
+                                        jsonResponse (ErrorMessage "Tender not found")
+                                        status badRequest400
+                                Right a -> jsonResponse $ Prelude.map toTenderDTO a
                 
 createTender body conn =  do
                             auth <- header "Authorization"
@@ -59,26 +60,6 @@ createTender body conn =  do
                             let token =  decodeAuthHdr auth
                             payload <- liftIO $ validateToken auth
                             createObject tender token conn
-                            -- uuid <- liftIO nextUUID
-                            -- case (profile, payload) of
-                            --     (Just a, Just token) -> do 
-                            --                 result <- liftIO $ insertTender a (toStrict token.user) uuid conn
-                            --                 case result of
-                            --                     Left a ->  do
-                            --                             jsonResponse (ErrorMessage "Query Error")
-                            --                             status badRequest400
-                            --                     Right [] -> do
-                            --                             jsonResponse (ErrorMessage "Tender not found")
-                            --                             status badRequest400
-                            --                     Right a  -> status noContent204
-                            --     (Nothing, Nothing) -> status badRequest400
-                            --     (_, Nothing) -> do 
-                            --                     jsonResponse (ErrorMessage "Token Invalid")
-                            --                     status unauthorized401
-                            --     (Nothing, _) -> do 
-                            --                     jsonResponse (ErrorMessage "Profile not found")
-                            --                     status badRequest400
-                                                
                                             
                                             
 removeTender conn = status unauthorized401

@@ -1,12 +1,7 @@
 {-# language BlockArguments #-}
-{-# language DeriveAnyClass #-}
-{-# language DeriveGeneric #-}
 {-# language DerivingVia #-}
 {-# language DuplicateRecordFields #-}
-{-# language OverloadedStrings #-}
-{-# language StandaloneDeriving #-}
 {-# language TypeFamilies #-}
-{-# LANGUAGE InstanceSigs #-}
 
 module Repository where
 
@@ -41,25 +36,27 @@ import BasketDescDTO
 
 import Data.UUID.V1 (nextUUID)
 
+
 class Repository a where
     insertObject :: a -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+    deleteObject :: a -> Connection -> IO (Either QueryError [Maybe UUID])
 
 instance Repository TenderDTO where 
-    insertObject :: TenderDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
     insertObject = insertTender
+    deleteObject = deleteTender
 
 instance Repository ItemDTO where 
-    insertObject :: ItemDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
     insertObject = insertItem
+    deleteObject = deleteItem
 
 instance Repository InvoiceDTO where 
-    insertObject :: InvoiceDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
     insertObject = insertInvoice
+    deleteObject = deleteInvoice
 
 instance Repository BasketDTO where 
-    insertObject :: BasketDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
     insertObject = insertBasket
+    deleteObject = deleteBasket
 
 instance Repository BasketDescDTO where 
-    insertObject :: BasketDescDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
     insertObject = insertBasketDesc
+    deleteObject = deleteBasketDesc
