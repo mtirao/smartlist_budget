@@ -23,6 +23,7 @@ import Hardcoded
 
 import TenderDTO
 import Data.UUID.V1 (nextUUID)
+import Evaluator (emptyQueryError)
 
 -- Rel8 Schemma Definitions
 data Tender f = Tender
@@ -61,8 +62,10 @@ select3  userId = select $ do
                     pure t
 
 -- INSERT
-insertTender :: TenderDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-insertTender t u i = run (statement () (insert1 t u i))
+insertTender :: Maybe TenderDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertTender t u i = case t of 
+                        Nothing -> return emptyQueryError
+                        Just tnd -> run (statement () (insert1 tnd u i))
 
 insert1 :: TenderDTO -> Text -> Maybe UUID ->Statement () [Maybe UUID]
 insert1 t u i = insert $ Insert
@@ -74,9 +77,10 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteTender :: TenderDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteTender u conn = do
-                        run (statement () (delete1 u.tenderId )) conn
+deleteTender :: Maybe TenderDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteTender u = case u of
+                        Nothing -> return emptyQueryError
+                        Just tnd -> run (statement () (delete1 tnd.tenderId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

@@ -27,41 +27,23 @@ import Jose.Jwa
 import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
+import Service
 
 --- BasketDesc
-getBasketDesc conn =  do
-                    auth <- header "Authorization"
-                    payload <- liftIO $ validateToken auth
-                    case payload of 
-                        Nothing -> do 
-                                    jsonResponse (ErrorMessage "Invalid token payload")
-                                    status unauthorized401
-                        Just token -> do 
-                                        result <- liftIO $ findBasketDesc (toStrict token.user) conn
-                                        case result of
-                                            Right [] -> do
-                                                    jsonResponse (ErrorMessage "BasketDesc not found")
-                                                    status badRequest400
-                                            Right [a] -> jsonResponse $ toBasketDescDTO a
+getBasketDesc conn = do
+                        auth <- header "Authorization"
+                        let token =  decodeAuthHdr auth
+                        payload <- liftIO $ validateToken auth
+                        selectBasketDesc payload conn
                 
-createBasketDesc body conn =  do
-                            auth <- header "Authorization"
-                            b <- body
-                            let profile = (decode b :: Maybe BasketDescDTO)
-                            let token =  decodeAuthHdr auth
-                            payload <- liftIO $ validateToken auth
-                            uuid <- liftIO nextUUID
-                            case (profile, payload) of
-                                (Just a, Just token) -> do 
-                                            result <- liftIO $ insertBasketDesc a (toStrict token.user) uuid conn
-                                            case result of
-                                                Right [] -> do
-                                                        jsonResponse (ErrorMessage "BasketDesc not found")
-                                                        status badRequest400
-                                                Right a  -> status noContent204
-                                (Nothing, Nothing) -> status badRequest400
-                                (_, Nothing) -> status badRequest400
-                                (Nothing, _) -> status badRequest400
+createBasketDesc body conn = do
+                                auth <- header "Authorization"
+                                b <- body
+                                let tender = (decode b :: Maybe BasketDescDTO)
+                                let token =  decodeAuthHdr auth
+                                payload <- liftIO $ validateToken auth
+                                createObject (DTOBasketDesc tender) token conn 
+                            
                                             
                                             
 removeBasketDesc conn = status unauthorized401

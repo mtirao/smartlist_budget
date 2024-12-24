@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE RecordWildCards       #-}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+{-# LANGUAGE InstanceSigs #-}
 
 
 module TenderDTO where
@@ -20,11 +21,13 @@ data TenderDTO = TenderDTO
     } deriving (Show)
  
 instance ToJSON TenderDTO where
+    toJSON :: TenderDTO -> Value
     toJSON TenderDTO {..} = object [
             "id" .= tenderId,
             "type" .= tenderType,
             "number" .= tenderNumber,
             "alias" .= tenderAlias
+            
         ]
 
 instance FromJSON TenderDTO where

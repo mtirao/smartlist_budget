@@ -20,6 +20,7 @@ import Hasql.Statement (Statement (..))
 import Rel8
 import Prelude hiding (filter, null)
 import Hardcoded
+import Evaluator (emptyQueryError)
 
 import BudgetDTO
 import Data.UUID.V1 (nextUUID)
@@ -61,8 +62,10 @@ findBudget userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertBudget :: BudgetDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-insertBudget p u i = run (statement () (insert1 p u i))
+insertBudget :: Maybe BudgetDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertBudget p u i = case p of
+                        Nothing -> return emptyQueryError
+                        Just bdg -> run (statement () (insert1 bdg u i))
 
 insert1 :: BudgetDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
 insert1 t u i = insert $ Insert
@@ -74,8 +77,10 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteBudget :: BudgetDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBudget u = run (statement () (delete1 u.budgetId ))
+deleteBudget :: Maybe BudgetDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteBudget u = case u of  
+                    Nothing -> return emptyQueryError
+                    Just bgt -> run (statement () (delete1 bgt.budgetId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

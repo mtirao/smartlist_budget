@@ -23,6 +23,7 @@ import Hardcoded
 
 import BasketDescDTO
 import Data.UUID.V1 (nextUUID)
+import Evaluator (emptyQueryError)
 
 -- Rel8 Schemma Definitions
 data BasketDesc f = BasketDesc
@@ -67,8 +68,10 @@ findBasketDesc userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertBasketDesc :: BasketDescDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-insertBasketDesc p u i = run (statement () (insert1 p u i))
+insertBasketDesc :: Maybe BasketDescDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertBasketDesc p u i = case p of
+                            Nothing -> return emptyQueryError
+                            Just bkt -> run (statement () (insert1 bkt u i))
 
 insert1 :: BasketDescDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
 insert1 t u i = insert $ Insert
@@ -79,8 +82,10 @@ insert1 t u i = insert $ Insert
             }
 
 -- DELETE
-deleteBasketDesc :: BasketDescDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteBasketDesc u = run (statement () (delete1 u.basketDescId ))
+deleteBasketDesc :: Maybe BasketDescDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteBasketDesc u = case u of 
+                        Nothing -> return emptyQueryError
+                        Just bkt -> run (statement () (delete1 bkt.basketDescId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

@@ -28,6 +28,8 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 
+import Service
+
 --- Basket
 getBasket conn =  do
                     auth <- header "Authorization"
@@ -47,23 +49,12 @@ getBasket conn =  do
 createBasket body conn =  do
                             auth <- header "Authorization"
                             b <- body
-                            let profile = (decode b :: Maybe BasketDTO)
+                            let tender = (decode b :: Maybe BasketDTO)
                             let token =  decodeAuthHdr auth
                             payload <- liftIO $ validateToken auth
-                            uuid <- liftIO nextUUID
-                            case (profile, payload) of
-                                (Just a, Just token) -> do 
-                                            result <- liftIO $ insertBasket a (toStrict token.user) uuid conn
-                                            case result of
-                                                Right [] -> do
-                                                        jsonResponse (ErrorMessage "Basket not found")
-                                                        status badRequest400
-                                                Right a  -> status noContent204
-                                (Nothing, Nothing) -> status badRequest400
-                                (_, Nothing) -> status badRequest400
-                                (Nothing, _) -> status badRequest400
-                                            
-                                            
+                            createObject (DTOBasket tender) token conn 
+                            
+                                                             
 removeBasket conn = status unauthorized401
 
 updateBasket body conn = status unauthorized401 

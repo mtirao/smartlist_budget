@@ -26,6 +26,8 @@ import ErrorMessage
 import Jose.Jws
 import Jose.Jwa
 import Jose.Jwt (Jwt(Jwt), JwsHeader(JwsHeader))
+import Hasql.Session (QueryError)
+import Data.UUID (UUID)
 
 -- Convert apply a func to Maybe a and create an ActionT result
 liftMaybe :: Maybe t -> (t -> ActionT IO ()) -> ActionT IO ()
@@ -77,3 +79,9 @@ validateToken token = do
                                     return $ Just a
                                 else 
                                     return Nothing
+
+emptyQuery :: Either QueryError [a]
+emptyQuery = Right []
+
+emptyQueryError :: IO (Either QueryError [a])
+emptyQueryError = pure emptyQuery

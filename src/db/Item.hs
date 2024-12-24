@@ -19,6 +19,7 @@ import Hasql.Statement (Statement (..))
 import Rel8
 import Prelude hiding (filter, null)
 import Hardcoded
+import Evaluator (emptyQueryError)
 
 import ItemDTO
 import Data.UUID.V1 (nextUUID)
@@ -59,8 +60,10 @@ findItem userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertItem :: ItemDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-insertItem p u i = run (statement () (insert1 p u i))
+insertItem :: Maybe ItemDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertItem p u i = case p of 
+                    Nothing -> return emptyQueryError
+                    Just itm -> run (statement () (insert1 itm u i))
 
 insert1 :: ItemDTO -> Text -> Maybe UUID  -> Statement () [Maybe UUID]
 insert1 t u i = insert $ Insert
@@ -72,8 +75,10 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteItem :: ItemDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteItem u = run (statement () (delete1 u.itemId ))
+deleteItem :: Maybe ItemDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteItem u = case u of
+                    Nothing -> return emptyQueryError
+                    Just itm -> run (statement () (delete1 itm.itemId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

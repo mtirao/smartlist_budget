@@ -28,41 +28,23 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 
+import Service
+
 --- Budget
 getBudget conn =  do
                     auth <- header "Authorization"
+                    let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
-                    case payload of 
-                        Nothing -> do 
-                                    jsonResponse (ErrorMessage "Invalid token payload")
-                                    status unauthorized401
-                        Just token -> do 
-                                        result <- liftIO $ findBudget (toStrict token.user) conn
-                                        case result of
-                                            Right [] -> do
-                                                    jsonResponse (ErrorMessage "Budget not found")
-                                                    status badRequest400
-                                            Right [a] -> jsonResponse $ toBudgetDTO a
+                    selectBudget payload conn
                 
 createBudget body conn =  do
                             auth <- header "Authorization"
                             b <- body
-                            let profile = (decode b :: Maybe BudgetDTO)
+                            let tender = (decode b :: Maybe BudgetDTO)
                             let token =  decodeAuthHdr auth
                             payload <- liftIO $ validateToken auth
-                            uuid <- liftIO nextUUID
-                            case (profile, payload) of
-                                (Just a, Just token) -> do 
-                                            result <- liftIO $ insertBudget a (toStrict token.user) uuid conn
-                                            case result of
-                                                Right [] -> do
-                                                        jsonResponse (ErrorMessage "Budget not found")
-                                                        status badRequest400
-                                                Right a  -> status noContent204
-                                (Nothing, Nothing) -> status badRequest400
-                                (_, Nothing) -> status badRequest400
-                                (Nothing, _) -> status badRequest400
-                                            
+                            createObject (DTOBudget tender) token conn
+
                                             
 removeBudget conn = status unauthorized401
 

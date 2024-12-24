@@ -15,11 +15,12 @@ import Data.Int (Int32, Int64)
 import Data.UUID
 import GHC.Generics (Generic)
 import Hasql.Connection (Connection, ConnectionError, acquire, release, settings)
-import Hasql.Session (QueryError, run, statement)
+import Hasql.Session (QueryError (QueryError), run, statement)
 import Hasql.Statement (Statement (..))
 import Rel8
 import Prelude hiding (filter, null)
 import Hardcoded
+import Evaluator (emptyQueryError)
 
 import InvoiceDTO
 import Data.UUID.V1 (nextUUID)
@@ -62,8 +63,11 @@ findInvoice userId conn = do
                             run (statement () query ) conn
 
 -- INSERT
-insertInvoice :: InvoiceDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
-insertInvoice p u i = run (statement () (insert1 p u i))
+
+insertInvoice :: Maybe InvoiceDTO -> Text -> Maybe UUID -> Connection -> IO (Either QueryError [Maybe UUID])
+insertInvoice p u i = case p of 
+                            Nothing -> return emptyQueryError
+                            Just inv -> run (statement () (insert1 inv u i))
 
 insert1 :: InvoiceDTO -> Text -> Maybe UUID -> Statement () [Maybe UUID]
 insert1 t u i = insert $ Insert
@@ -75,8 +79,10 @@ insert1 t u i = insert $ Insert
 
 
 -- DELETE
-deleteInvoice :: InvoiceDTO -> Connection -> IO (Either QueryError [Maybe UUID])
-deleteInvoice u = run (statement () (delete1 u.invoiceId ))
+deleteInvoice :: Maybe InvoiceDTO -> Connection -> IO (Either QueryError [Maybe UUID])
+deleteInvoice u = case u of 
+                    Nothing -> return emptyQueryError
+                    Just inv -> run (statement () (delete1 inv.invoiceId ))
 
 delete1 :: Maybe UUID -> Statement () [Maybe UUID]
 delete1 u  = delete $ Delete

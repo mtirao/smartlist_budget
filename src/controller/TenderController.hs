@@ -35,31 +35,21 @@ import Database.PostgreSQL.Simple.ToField (Action)
 import Hasql.Connection (Connection)
 
 import Service
-import Repository
 
 --- Tender
+getTender :: Connection -> ActionT IO ()
 getTender conn =  do
                     auth <- header "Authorization"
+                    let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO $ findTender (toStrict token.user) conn
-                            case result of
-                                Right [] -> do
-                                        jsonResponse (ErrorMessage "Tender not found")
-                                        status badRequest400
-                                Right a -> jsonResponse $ Prelude.map toTenderDTO a
+                    selectTender payload conn
                 
 createTender body conn =  do
                             auth <- header "Authorization"
                             b <- body
                             let tender = (decode b :: Maybe TenderDTO)
                             let token =  decodeAuthHdr auth
-                            payload <- liftIO $ validateToken auth
-                            createObject tender token conn
+                            createObject (DTOTender tender) token conn
                                             
                                             
 removeTender conn = status unauthorized401
