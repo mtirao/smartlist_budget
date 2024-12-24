@@ -23,6 +23,11 @@ import Control.Monad.IO.Class
 
 import Connection
 import TenderController
+import BasketController
+import BasketDescController
+import BudgetController
+import InvoiceController
+import ItemController
 
 main :: IO ()
 main = do
@@ -39,3 +44,33 @@ main = do
         post "/api/v1/tender" $ createTender body connection
         delete "/api/v1/tender" $ removeTender connection
         put "/api/v1/tender" $ updateTender body connection
+
+        -- Item
+        get "/api/v1/item" $ getItem connection
+        post "/api/v1/item" $ createItem body connection
+        delete "/api/v1/item" $ removeItem connection
+        put "/api/v1/item" $ updateItem body connection
+
+        -- Invoice
+        get "/api/v1/invoice" $ getInvoice connection
+        post "/api/v1/invoice" $ createInvoice body connection
+        delete "/api/v1/invoice" $ removeInvoice connection
+        put "/api/v1/invoice" $ updateInvoice body connection
+
+        -- Budget
+        get "/api/v1/budget" $ getBudget connection
+        post "/api/v1/budget" $ createBudget body connection
+        delete "/api/v1/budget" $ removeBudget connection
+        put "/api/v1/budget" $ updateBudget body connection
+
+        -- BasketDesc
+        get "/api/v1/basket-description" $ getBasketDesc connection
+        post "/api/v1/basket-description" $ createBasketDesc body connection
+        delete "/api/v1/basket-description" $ removeBasketDesc connection
+        put "/api/v1/basket-description" $ updateBasketDesc body connection
+
+        -- Bakset
+        get "/api/v1/basket" $ getBasket connection
+        post "/api/v1/basket" $ createBasket body connection
+        delete "/api/v1/basket" $ removeBasket connection
+        put "/api/v1/basket" $ updateBasket body connection
