@@ -28,13 +28,16 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 import Service
+import Repository
 
 --- Item
 getItem conn =  do
                     auth <- header "Authorization"
                     let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
-                    selectItem payload conn
+                    userId <- liftIO $ tokenUserID payload
+                    result <- liftIO (findObject (toStrict userId) conn :: IO [Maybe ItemDTO])
+                    selectItems result conn
                 
 createItem body conn =  do
                             auth <- header "Authorization"

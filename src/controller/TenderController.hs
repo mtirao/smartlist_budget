@@ -35,6 +35,7 @@ import Database.PostgreSQL.Simple.ToField (Action)
 import Hasql.Connection (Connection)
 
 import Service
+import Repository
 
 --- Tender
 getTender :: Connection -> ActionT IO ()
@@ -42,7 +43,9 @@ getTender conn =  do
                     auth <- header "Authorization"
                     let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
-                    selectTender payload conn
+                    userId <- liftIO $ tokenUserID payload
+                    result <- liftIO (findObject (toStrict userId) conn :: IO [Maybe TenderDTO])
+                    selectItems result conn
                 
 createTender body conn =  do
                             auth <- header "Authorization"

@@ -80,6 +80,12 @@ validateToken token = do
                                 else 
                                     return Nothing
 
+tokenUserID :: Maybe Payload -> IO Text
+tokenUserID payload = case payload of
+                        Nothing -> return ""
+                        Just token -> return token.user
+                        
+
 emptyQuery :: Either QueryError [a]
 emptyQuery = Right []
 

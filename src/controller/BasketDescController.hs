@@ -28,13 +28,16 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 import Service
+import Repository
 
 --- BasketDesc
 getBasketDesc conn = do
-                        auth <- header "Authorization"
-                        let token =  decodeAuthHdr auth
-                        payload <- liftIO $ validateToken auth
-                        selectBasketDesc payload conn
+                    auth <- header "Authorization"
+                    let token =  decodeAuthHdr auth
+                    payload <- liftIO $ validateToken auth
+                    userId <- liftIO $ tokenUserID payload
+                    result <- liftIO (findObject (toStrict userId) conn :: IO [Maybe BasketDescDTO])
+                    selectItems result conn
                 
 createBasketDesc body conn = do
                                 auth <- header "Authorization"

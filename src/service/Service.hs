@@ -73,7 +73,6 @@ insertDTO b t u c = case b of
 class Service a where
     createObject :: a -> Maybe Payload -> Connection -> ActionT IO ()
 
-
 instance Service DTOS where
     createObject :: DTOS -> Maybe Payload -> Connection -> ActionT IO ()
     createObject tender payload conn = do
@@ -94,87 +93,13 @@ instance Service DTOS where
                             status unauthorized401
 
 
--- Select tenders services
-selectTender :: Maybe Payload -> Connection -> ActionT IO ()
-selectTender payload conn = do
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO (findObject (toStrict token.user) conn :: IO [Maybe TenderDTO])
+-- Services helpers
+
+selectItems :: ToJSON a =>  [a] -> Connection -> ActionT IO ()
+selectItems result conn = do
                             case result of
                                 [] -> do
                                         jsonResponse (ErrorMessage "Tender not found")
                                         status badRequest400
-                                a -> jsonResponse  a
+                                list -> jsonResponse  list
 
-selectItem :: Maybe Payload -> Connection -> ActionT IO ()
-selectItem payload conn = do
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO (findObject (toStrict token.user) conn :: IO [Maybe ItemDTO])
-                            case result of
-                                [] -> do
-                                        jsonResponse (ErrorMessage "Item not found")
-                                        status badRequest400
-                                a -> jsonResponse  a
-
-selectInvoice :: Maybe Payload -> Connection -> ActionT IO ()
-selectInvoice payload conn = do
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO (findObject (toStrict token.user) conn :: IO [Maybe InvoiceDTO])
-                            case result of
-                                [] -> do
-                                        jsonResponse (ErrorMessage "Invoice not found")
-                                        status badRequest400
-                                a -> jsonResponse  a
-
-selectBudget :: Maybe Payload -> Connection -> ActionT IO ()
-selectBudget payload conn = do
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO (findObject (toStrict token.user) conn :: IO [Maybe BudgetDTO])
-                            case result of
-                                [] -> do
-                                        jsonResponse (ErrorMessage "Budget not found")
-                                        status badRequest400
-                                a -> jsonResponse  a
-
-selectBasket :: Maybe Payload -> Connection -> ActionT IO ()
-selectBasket payload conn = do
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO (findObject (toStrict token.user) conn :: IO [Maybe BasketDTO])
-                            case result of
-                                [] -> do
-                                        jsonResponse (ErrorMessage "Basket not found")
-                                        status badRequest400
-                                a -> jsonResponse  a
-
-selectBasketDesc :: Maybe Payload -> Connection -> ActionT IO ()
-selectBasketDesc payload conn = do
-                    case payload of 
-                        Nothing -> do 
-                            jsonResponse (ErrorMessage "Invalid token payload")
-                            status unauthorized401
-                        Just token -> do 
-                            result <- liftIO (findObject (toStrict token.user) conn :: IO [Maybe BasketDescDTO])
-                            case result of
-                                [] -> do
-                                        jsonResponse (ErrorMessage "Basket desc not found")
-                                        status badRequest400
-                                a -> jsonResponse  a

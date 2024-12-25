@@ -28,14 +28,16 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 import Service
-
+import Repository
 
 --- Invoice
-getInvoice conn =  do
+getInvoice conn = do
                     auth <- header "Authorization"
                     let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
-                    selectInvoice payload conn
+                    userId <- liftIO $ tokenUserID payload
+                    result <- liftIO (findObject (toStrict userId) conn :: IO [Maybe InvoiceDTO])
+                    selectItems result conn
                 
 createInvoice body conn = do
                             auth <- header "Authorization"

@@ -29,13 +29,16 @@ import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 
 import Service
+import Repository
 
 --- Budget
 getBudget conn =  do
                     auth <- header "Authorization"
                     let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
-                    selectBudget payload conn
+                    userId <- liftIO $ tokenUserID payload
+                    result <- liftIO (findObject (toStrict userId) conn :: IO [Maybe BudgetDTO])
+                    selectItems result conn
                 
 createBudget body conn =  do
                             auth <- header "Authorization"
