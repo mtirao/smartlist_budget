@@ -28,9 +28,9 @@ import Evaluator (emptyQueryError)
 -- Rel8 Schemma Definitions
 data BasketDesc f = BasketDesc
     {basketDescIdT :: Column f ( Maybe UUID)
-    , basketDescBasketIdT :: Column f UUID
+    , basketDescBasketIdT :: Column f (Maybe UUID)
     , basketDescDateT :: Column f Int64
-    , basketDescItemIdT :: Column f UUID
+    , basketDescItemIdT :: Column f (Maybe UUID)
     , basketDescLatT :: Column f Float
     , basketDescLonT :: Column f Float
     , basketDescPriceT :: Column f Float

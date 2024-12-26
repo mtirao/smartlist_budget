@@ -16,7 +16,7 @@ import Data.UUID
 data InvoiceDTO = InvoiceDTO
     { invoiceId :: Maybe UUID
     , invoiceAmount :: Float
-    , invoiceBudget :: UUID
+    , invoiceBudget :: Maybe UUID
     , invoiceDate :: Int64
     , invoiceName :: T.Text
     } deriving (Show)

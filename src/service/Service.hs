@@ -68,16 +68,24 @@ insertDTO b t u c = case b of
                         DTOBasket a -> insertObject a (toStrict t) u c
                         DTOBasketDesc a -> insertObject a (toStrict t) u c
 
+deleteDTO b c = case b of
+                        DTOItem a -> deleteObject a c
+                        DTOTender a -> deleteObject a c
+                        DTOInvoice a -> deleteObject a c
+                        DTOBudget a -> deleteObject a c
+                        DTOBasket a -> deleteObject a c
+                        DTOBasketDesc a -> deleteObject a c
 
 -- Service Class/Instances definition
 class Service a where
     createObject :: a -> Maybe Payload -> Connection -> ActionT IO ()
+    removeObject :: a -> Maybe Payload -> Connection -> ActionT IO ()
 
 instance Service DTOS where
     createObject :: DTOS -> Maybe Payload -> Connection -> ActionT IO ()
-    createObject tender payload conn = do
+    createObject dto payload conn = do
         uuid <- liftIO nextUUID
-        case (tender, payload) of
+        case (dto, payload) of
             (obj, Just token) -> do
                         result <- liftIO $ insertDTO obj token.user uuid conn
                         case result of
@@ -92,14 +100,21 @@ instance Service DTOS where
                             jsonResponse (ErrorMessage "Token Invalid")
                             status unauthorized401
 
+    removeObject :: DTOS -> Maybe Payload -> Connection -> ActionT IO ()
+    removeObject dto payload conn = case payload of
+                                    Just token ->  do
+                                        result <- liftIO $ deleteDTO dto conn
+                                        case result of 
+                                            Left a -> do
+                                                        jsonResponse (ErrorMessage "Query Error")
+                                                        status badRequest400
+                                            Right [] -> do
+                                                    jsonResponse (ErrorMessage "Tender not found")
+                                                    status badRequest400
+                                            Right a  -> status noContent204
+                                    Nothing -> do
+                                                jsonResponse (ErrorMessage "Token Invalid")
+                                                status unauthorized401
 
--- Services helpers
 
-selectItems :: ToJSON a =>  [a] -> Connection -> ActionT IO ()
-selectItems result conn = do
-                            case result of
-                                [] -> do
-                                        jsonResponse (ErrorMessage "Tender not found")
-                                        status badRequest400
-                                list -> jsonResponse  list
 

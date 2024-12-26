@@ -30,7 +30,7 @@ import Evaluator (emptyQueryError)
 data Basket f = Basket
     {basketIdT :: Column f ( Maybe UUID)
     , basketStatusT :: Column f Text
-    , basketTenderIdT :: Column f UUID
+    , basketTenderIdT :: Column f (Maybe UUID)
     , basketUserIdT :: Column f Text
     }
     deriving (Generic, Rel8able)

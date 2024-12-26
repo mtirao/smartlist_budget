@@ -29,7 +29,7 @@ import Data.UUID.V1 (nextUUID)
 data Invoice f = Invoice
     {invoiceIdT :: Column f ( Maybe UUID)
     , invoiceAmountT :: Column f Float
-    , invoiceBudgeT :: Column f UUID
+    , invoiceBudgeT :: Column f (Maybe UUID)
     , invoiceDateT :: Column f Int64
     , invoiceNameT :: Column f Text
     , invoiceUserIdT :: Column f Text

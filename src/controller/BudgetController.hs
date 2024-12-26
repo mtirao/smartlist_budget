@@ -21,6 +21,7 @@ import Data.UUID
 import Data.Text.Lazy
 import Data.Text.Internal.Lazy
 import Data.UUID.V1 (nextUUID)
+import qualified Data.UUID as UUID
 
 import Jose.Jws
 import Jose.Jwa
@@ -29,6 +30,7 @@ import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 
 import Service
+import ServiceHelper
 import Repository
 
 --- Budget
@@ -49,7 +51,12 @@ createBudget body conn =  do
                             createObject (DTOBudget tender) token conn
 
                                             
-removeBudget conn = status unauthorized401
+removeBudget id conn = do 
+                            auth <- header "Authorization"
+                            payload <- liftIO $ validateToken auth
+                            userId <- liftIO $ tokenUserID payload
+                            removeObject (DTOBudget $ Just (BudgetDTO (UUID.fromString . unpack $ userId) 0.0 0 "")) payload conn
+
 
 updateBudget body conn = status unauthorized401 
 

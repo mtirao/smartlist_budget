@@ -21,6 +21,7 @@ import Data.UUID
 import Data.Text.Lazy
 import Data.Text.Internal.Lazy
 import Data.UUID.V1 (nextUUID)
+import qualified Data.UUID as UUID
 
 import Jose.Jws
 import Jose.Jwa
@@ -28,6 +29,7 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 import Service
+import ServiceHelper
 import Repository
 
 --- Invoice
@@ -49,6 +51,10 @@ createInvoice body conn = do
                             
                                             
                                             
-removeInvoice conn = status unauthorized401
+removeInvoice id conn = do 
+                            auth <- header "Authorization"
+                            payload <- liftIO $ validateToken auth
+                            userId <- liftIO $ tokenUserID payload
+                            removeObject (DTOInvoice $ Just (InvoiceDTO (UUID.fromString . unpack $ userId) 0.0 Nothing 0 "")) payload conn
 
 updateInvoice body conn = status unauthorized401 

@@ -15,7 +15,7 @@ import Data.UUID
 data BasketDTO = BasketDTO
     { basketId :: Maybe UUID
     , basketStatus :: T.Text
-    , basketTenderId :: UUID
+    , basketTenderId :: Maybe UUID
     } deriving (Show)
  
 instance ToJSON BasketDTO where

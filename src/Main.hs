@@ -42,35 +42,44 @@ main = do
         -- Tender
         get "/api/v1/tender" $ getTender connection
         post "/api/v1/tender" $ createTender body connection
-        delete "/api/v1/tender" $ removeTender connection
+        delete "/api/v1/tender/:id" $ do idd <- param "id" :: ActionM TL.Text 
+                                         removeTender idd connection
         put "/api/v1/tender" $ updateTender body connection
 
         -- Item
         get "/api/v1/item" $ getItem connection
         post "/api/v1/item" $ createItem body connection
-        delete "/api/v1/item" $ removeItem connection
+        delete "/api/v1/item/:id" $ do 
+                                        idd <- param "id" :: ActionM TL.Text 
+                                        removeItem idd connection
         put "/api/v1/item" $ updateItem body connection
 
         -- Invoice
         get "/api/v1/invoice" $ getInvoice connection
         post "/api/v1/invoice" $ createInvoice body connection
-        delete "/api/v1/invoice" $ removeInvoice connection
+        delete "/api/v1/invoice/:id" $  do 
+                                            idd <- param "id" :: ActionM TL.Text 
+                                            removeInvoice idd connection
         put "/api/v1/invoice" $ updateInvoice body connection
 
         -- Budget
         get "/api/v1/budget" $ getBudget connection
         post "/api/v1/budget" $ createBudget body connection
-        delete "/api/v1/budget" $ removeBudget connection
+        delete "/api/v1/budget/:id" $ do 
+                                        idd <- param "id" :: ActionM TL.Text 
+                                        removeBudget idd connection
         put "/api/v1/budget" $ updateBudget body connection
 
         -- BasketDesc
         get "/api/v1/basket-description" $ getBasketDesc connection
         post "/api/v1/basket-description" $ createBasketDesc body connection
-        delete "/api/v1/basket-description" $ removeBasketDesc connection
+        delete "/api/v1/basket-description/:id" $ do idd <- param "id" :: ActionM TL.Text 
+                                                     removeBasketDesc idd connection
         put "/api/v1/basket-description" $ updateBasketDesc body connection
 
         -- Bakset
         get "/api/v1/basket" $ getBasket connection
         post "/api/v1/basket" $ createBasket body connection
-        delete "/api/v1/basket" $ removeBasket connection
+        delete "/api/v1/basket/:id" $ do idd <- param "id" :: ActionM TL.Text 
+                                         removeBasket idd connection
         put "/api/v1/basket" $ updateBasket body connection

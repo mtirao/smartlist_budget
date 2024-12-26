@@ -21,6 +21,7 @@ import Data.UUID
 import Data.Text.Lazy
 import Data.Text.Internal.Lazy
 import Data.UUID.V1 (nextUUID)
+import qualified Data.UUID as UUID
 
 import Jose.Jws
 import Jose.Jwa
@@ -28,6 +29,7 @@ import Jose.Jwt (Jwt(Jwt))
 import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 import Service
+import ServiceHelper
 import Repository
 
 --- Basket
@@ -48,7 +50,12 @@ createBasket body conn =  do
                             createObject (DTOBasket tender) token conn 
                             
                                                              
-removeBasket conn = status unauthorized401
+removeBasket id conn = do 
+                        auth <- header "Authorization"
+                        payload <- liftIO $ validateToken auth
+                        userId <- liftIO $ tokenUserID payload
+                        removeObject (DTOBasket $ Just (BasketDTO (UUID.fromString . unpack $ userId) "" Nothing)) payload conn
+
 
 updateBasket body conn = status unauthorized401 
 

@@ -15,9 +15,9 @@ import Data.UUID
 -- Login Response
 data BasketDescDTO = BasketDescDTO
     { basketDescId :: Maybe UUID
-    , basketDescBasketId :: UUID
+    , basketDescBasketId :: Maybe UUID
     , basketDescDate :: Int64
-    , basketDescItemId :: UUID
+    , basketDescItemId :: Maybe UUID
     , basketDescLat :: Float
     , basketDescLon :: Float
     , basketDescPrice :: Float

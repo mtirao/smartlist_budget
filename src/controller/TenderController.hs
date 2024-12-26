@@ -30,18 +30,19 @@ import GHC.Generics (U1(U1))
 import Network.Wreq (responseBody)
 import Data.Text.Internal.Encoding.Utf32 (validate)
 import Data.UUID.V1 (nextUUID)
+import qualified Data.UUID as UUID
 import Database.PostgreSQL.Simple.ToField (Action)
 
 import Hasql.Connection (Connection)
 
 import Service
+import ServiceHelper
 import Repository
 
 --- Tender
 getTender :: Connection -> ActionT IO ()
 getTender conn =  do
                     auth <- header "Authorization"
-                    let token =  decodeAuthHdr auth
                     payload <- liftIO $ validateToken auth
                     userId <- liftIO $ tokenUserID payload
                     result <- liftIO (findObject (toStrict userId) conn :: IO [Maybe TenderDTO])
@@ -55,6 +56,10 @@ createTender body conn =  do
                             createObject (DTOTender tender) token conn
                                             
                                             
-removeTender conn = status unauthorized401
+removeTender id conn = do 
+                        auth <- header "Authorization"
+                        payload <- liftIO $ validateToken auth
+                        userId <- liftIO $ tokenUserID payload
+                        removeObject (DTOTender $ Just (TenderDTO (UUID.fromString . unpack $ userId) "" "" "")) payload conn
 
 updateTender body conn = status unauthorized401 
